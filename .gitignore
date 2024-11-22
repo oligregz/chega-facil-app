@@ -1,0 +1,11 @@
+# Root
+node_modules
+package-lock.json
+.env
+
+# Interfacce
+interface/node_modules
+
+# Api
+api/node_modules
+api/package-lock.json
