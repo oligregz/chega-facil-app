@@ -1,0 +1,17 @@
+{
+  "name": "chega-facil-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "idapi": "concurrently \"cd api && npm install\"",
+    "sdapi": "concurrently \"cd api && nest start --watch\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
