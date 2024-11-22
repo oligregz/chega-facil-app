@@ -9,3 +9,4 @@ interface/node_modules
 # Api
 api/node_modules
 api/package-lock.json
+api/dist
