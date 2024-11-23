@@ -23,10 +23,11 @@ services:
       - ./api:/app
       - /app/node_modules
     depends_on:
-      - db-container-chega-facil
+      db-container-chega-facil:
+        condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://rootuser:Root5432@db-container-chega-facil:4523/chega-facil-database
       - NODE_ENV=development
+      - DATABASE_URL=postgresql://userroot:Root4523@db-container-chega-facil:4523/chega-facil-database
 
   db-container-chega-facil:
     container_name: postgres-chega-facil
@@ -41,6 +42,12 @@ services:
       - PGUSER=userroot
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U userroot -d chega-facil-database"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   postgres_data:
