@@ -5,6 +5,7 @@ import { PrismaService } from './prisma.service';
 @Injectable()
 export class AppService {
   public keyApi: string;
+  public resConnection: number;
 
   constructor(
     private configService: ConfigService,
@@ -13,23 +14,28 @@ export class AppService {
     this.keyApi = this.configService.get<string>('GOOGLE_API_KEY');
   }
 
-  async getHello(): Promise<string> {
+  async getHello(): Promise<object> {
     const databaseUrl = this.configService.get<string>('DATABASE_URL');
+    let res: any;
     if (!databaseUrl) {
-      return 'DATABASE_URL is not configured in .env file.';
+      return {
+        message: 'DATABASE_URL is not configured in .env file.',
+      };
     }
 
     try {
-      // Teste de conexão com o banco de dados
-      await this.prismaService.$queryRaw`SELECT 1`;
-      return (
-        'Hello World! Database connection successful. API Key: ' + this.keyApi
-      );
+      res = await this.prismaService.$queryRaw`SELECT 1`;
+      const columnValue = res.length > 0 ? res[0]['?column?'] : null;
+      this.resConnection = columnValue;
+      return {
+        message: `Api running with status: ${this.resConnection}`,
+      };
     } catch (error) {
-      return (
-        'Hello World! Failed to connect to the database. Error: ' +
-        error.message
-      );
+      console.log(this.resConnection, res);
+      return {
+        message: `Api running with status: ${this.resConnection}`,
+        error: error.message,
+      };
     }
   }
 }

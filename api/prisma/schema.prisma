@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://userroot:Root4523@db-container-chega-facil:5432/chega-facil-database"
 }
 
 model Customer {

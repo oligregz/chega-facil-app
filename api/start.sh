@@ -1,8 +1,5 @@
 #!/bin/sh
-
-/create-env.sh
-
-wait-for-it db-container-chega-facil:5432 --timeout=30 -- echo "Banco de dados está pronto."
+wait-for-it db-container-chega-facil:5432 --timeout=30 -- echo "Database done."
 
 npx prisma migrate dev --name "initial_migration"
 npx prisma generate

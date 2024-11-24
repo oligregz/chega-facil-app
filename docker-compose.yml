@@ -11,7 +11,7 @@ services:
   #   depends_on:
   #     - api
   #   environment:
-  #     - REACT_APP_API_URL=http://localhost:8080
+  #     - REACT_APP_API_URL=http://localhost:80
 
   api:
     build:
@@ -20,8 +20,11 @@ services:
     ports:
       - "8080:5000"
     volumes:
-      - ./api:/app
+      - ./api:/app/api
+      - ./.env:/app/api/.env
       - /app/node_modules
+    env_file:
+      - .env
     depends_on:
       db-container-chega-facil:
         condition: service_started
@@ -29,6 +32,7 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://userroot:Root4523@db-container-chega-facil:5432/chega-facil-database
 
+  # Serviço de banco de dados (PostgreSQL)
   db-container-chega-facil:
     container_name: postgres-chega-facil
     image: postgres:14
