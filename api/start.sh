@@ -2,8 +2,10 @@
 
 /create-env.sh
 
-# Wait for the database to become available
-wait-for-it db-container-chega-facil:4523 -- npx prisma migrate dev
+wait-for-it db-container-chega-facil:5432 --timeout=30 -- echo "Banco de dados está pronto."
+
+npx prisma migrate dev --name "initial_migration"
+npx prisma generate
 
 # Start application
 npm run start:dev
