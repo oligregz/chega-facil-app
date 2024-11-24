@@ -1,5 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
-import { error } from 'console';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 
 export class AppError extends Error {
@@ -12,21 +11,22 @@ export class AppError extends Error {
   }
 }
 
-@Catch(AppError) // Catch errors from the AppError class
-export class AppErrorFilter implements ExceptionFilter {
-  catch(exception: AppError, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const status = exception.statusCode;
-
-    console.log({
-      status: status,
-      message: exception.message,
+export function handleError(error: any, response: Response) {
+  if (error instanceof AppError) {
+    console.error({
+      status: error.statusCode,
+      message: error.message,
     });
 
-    response.status(status).json({
-      status: 'error',
-      message: exception.message,
-    });
+    throw new HttpException(
+      { status: 'error', message: error.message },
+      error.statusCode,
+    );
+  } else {
+    console.error('Erro inesperado:', error);
+    throw new HttpException(
+      { status: 'error', message: 'Erro interno do servidor' },
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 }
