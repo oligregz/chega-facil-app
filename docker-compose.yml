@@ -27,7 +27,7 @@ services:
         condition: service_started
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://userroot:Root4523@localhost:4523/chega-facil-database
+      - DATABASE_URL=postgresql://userroot:Root4523@db-container-chega-facil:5432/chega-facil-database
 
   db-container-chega-facil:
     container_name: postgres-chega-facil
