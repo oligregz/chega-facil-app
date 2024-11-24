@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://userroot:Root4523@db-container-chega-facil:5432/chega-facil-database"
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean
+  Trip      Trip[]
+
+  @@map("customers")
+}
+
+model Driver {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean
+  Trip      Trip[]
+
+  @@map("drivers")
+}
+
+enum TripStatus {
+  REQUESTED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Trip {
+  id                   String     @id @default(uuid())
+  customerId           String
+  driverId             String
+  originLatitude       Decimal
+  originLongitude      Decimal
+  destinationLatitude  Decimal
+  destinationLongitude Decimal
+  startTime            DateTime?
+  endTime              DateTime?
+  distance             Float?
+  price                Float?
+  status               TripStatus @default(REQUESTED)
+  cancellationReason   String?
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  driver   Driver   @relation(fields: [driverId], references: [id])
+
+  @@map("trips")
+}

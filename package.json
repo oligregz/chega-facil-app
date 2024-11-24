@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "idapi": "concurrently \"cd api && npm install\"",
-    "sdapi": "concurrently \"cd api && nest start --watch\"",
+    "i-dev-api": "concurrently \"cd api && npm install\"",
+    "s-dev-api": "concurrently \"cd api && nest start --watch\"",
+    "s-dev-container-api": "concurrently \"cd api && npm run docker:start\"",
+    "prisma-studio": "concurrently \"cd api && npx prisma studio\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
