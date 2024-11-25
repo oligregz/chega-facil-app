@@ -10,6 +10,9 @@ export class CustomersService {
   async findAll() {
     const customers = await this.prisma.customer.findMany();
 
+    if (customers.length === 0)
+      throw new AppError('Customer alerady exists', 404);
+
     return customers;
   }
 
