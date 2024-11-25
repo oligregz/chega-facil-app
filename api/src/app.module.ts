@@ -5,9 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma.service';
 import { CustomersModule } from './modules/customers/customers.module';
 import { DriversModule } from './modules/drivers/drivers.module';
-import { TripsModule } from './modules/trips/trips.module';
 import * as path from 'path';
 import { LoggerMiddleware } from './utils/logger.middlware';
+import { RidesModule } from './modules/rides/rides.module';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { LoggerMiddleware } from './utils/logger.middlware';
     }),
     CustomersModule,
     DriversModule,
-    TripsModule,
+    RidesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
