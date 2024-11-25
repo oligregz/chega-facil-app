@@ -6,7 +6,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CustomerCreateBody {
+export class CustomerCreateBodyDTO {
   @IsNotEmpty()
   @IsString()
   name: string;
