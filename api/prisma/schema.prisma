@@ -22,14 +22,18 @@ model Customer {
 }
 
 model Driver {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  phone     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean
-  Trip      Trip[]
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  phone           String
+  car             String
+  review          Float
+  rate            Float
+  minimumDistance Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  isActive        Boolean
+  Trip            Trip[]
 
   @@unique([name, phone, email])
   @@map("drivers")

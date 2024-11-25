@@ -11,7 +11,7 @@ export class AppError extends Error {
   }
 }
 
-export function handleError(error: any, response: Response) {
+export function handleError(error: any, response?: Response) {
   if (error instanceof AppError) {
     console.error({
       status: error.statusCode,

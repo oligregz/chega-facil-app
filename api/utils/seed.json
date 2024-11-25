@@ -1,0 +1,112 @@
+{
+  "customers": [
+    {
+      "name": "Alice Smith",
+      "email": "alicesmith@example.com",
+      "phone": "+987654321",
+      "isActive": true
+    }
+  ],
+  "drivers": [
+    {
+      "name": "Dominic Toretto",
+      "email": "dom@example.com",
+      "phone": "+123456700",
+      "car": "Dodge Charger",
+      "review": 4.9,
+      "rate": 150.00,
+      "minimumDistance": 10,
+      "isActive": true
+    },
+    {
+      "name": "Brian O'Conner",
+      "email": "brian@example.com",
+      "phone": "+123456701",
+      "car": "Nissan Skyline",
+      "review": 4.8,
+      "rate": 130.00,
+      "minimumDistance": 12,
+      "isActive": true
+    },
+    {
+      "name": "Luke Hobbs",
+      "email": "hobbs@example.com",
+      "phone": "+123456702",
+      "car": "Ford Mustang",
+      "review": 4.7,
+      "rate": 120.00,
+      "minimumDistance": 15,
+      "isActive": true
+    },
+    {
+      "name": "Mia Toretto",
+      "email": "mia@example.com",
+      "phone": "+123456703",
+      "car": "Chevrolet Corvette",
+      "review": 4.6,
+      "rate": 140.00,
+      "minimumDistance": 8,
+      "isActive": true
+    },
+    {
+      "name": "Letty Ortiz",
+      "email": "letty@example.com",
+      "phone": "+123456704",
+      "car": "Chevrolet Camaro",
+      "review": 4.5,
+      "rate": 125.00,
+      "minimumDistance": 10,
+      "isActive": true
+    },
+    {
+      "name": "Roman Pearce",
+      "email": "roman@example.com",
+      "phone": "+123456705",
+      "car": "Mitsubishi Eclipse",
+      "review": 4.3,
+      "rate": 110.00,
+      "minimumDistance": 20,
+      "isActive": true
+    },
+    {
+      "name": "Tej Parker",
+      "email": "tej@example.com",
+      "phone": "+123456706",
+      "car": "BMW M5",
+      "review": 4.4,
+      "rate": 135.00,
+      "minimumDistance": 5,
+      "isActive": true
+    },
+    {
+      "name": "Shifty",
+      "email": "shifty@example.com",
+      "phone": "+123456707",
+      "car": "Honda Civic",
+      "review": 4.2,
+      "rate": 100.00,
+      "minimumDistance": 18,
+      "isActive": true
+    },
+    {
+      "name": "Chad Reinis",
+      "email": "chad@example.com",
+      "phone": "+123456708",
+      "car": "Porsche 911",
+      "review": 4.8,
+      "rate": 160.00,
+      "minimumDistance": 10,
+      "isActive": true
+    },
+    {
+      "name": "Carter Verone",
+      "email": "carter@example.com",
+      "phone": "+123456709",
+      "car": "Ferrari 360",
+      "review": 4.7,
+      "rate": 145.00,
+      "minimumDistance": 12,
+      "isActive": true
+    }
+  ]
+}
