@@ -1,33 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/PrismaService';
 import { AppError } from 'src/errors/app-error';
-import { CustomerDTO } from './customer.dto';
+import { Customer } from '@prisma/client';
+import { CustomerCreateBody } from './dtos/CustomerCreateBody';
 
 @Injectable()
 export class CustomersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(): Promise<Customer[]> {
     const customers = await this.prisma.customer.findMany();
 
-    if (customers.length === 0)
-      throw new AppError('Customer alerady exists', 404);
+    if (customers.length === 0) throw new AppError('Customers not found', 404);
 
     return customers;
   }
 
-  async findById(data: CustomerDTO) {
-    const customer = await this.prisma.customer.findFirst({
-      where: {
-        id: data.id,
-      },
-    });
-
-    return customer;
-  }
-
-  async findCustomer(data: CustomerDTO) {
+  async findCustomer(data: CustomerCreateBody): Promise<Customer> {
     const { name, phone, email, isActive } = data;
+
     const customer = await this.prisma.customer.findFirst({
       where: {
         name,
@@ -40,7 +31,7 @@ export class CustomersService {
     return customer;
   }
 
-  async create(data: CustomerDTO) {
+  async create(data: CustomerCreateBody): Promise<Customer> {
     const hasCustomer = await this.findCustomer(data);
 
     if (hasCustomer) throw new AppError('Customer alerady exists', 409);

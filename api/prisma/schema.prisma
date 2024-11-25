@@ -10,26 +10,28 @@ datasource db {
 model Customer {
   id        String   @id @default(uuid())
   name      String
-  email     String?
-  phone     String?
+  email     String
+  phone     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean
   Trip      Trip[]
 
+  @@unique([name, phone, email])
   @@map("customers")
 }
 
 model Driver {
   id        String   @id @default(uuid())
   name      String
-  email     String?
-  phone     String?
+  email     String
+  phone     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean
   Trip      Trip[]
 
+  @@unique([name, phone, email])
   @@map("drivers")
 }
 
