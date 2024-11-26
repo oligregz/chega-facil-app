@@ -61,5 +61,15 @@ export const ERROR = {
       DESCRIPTION: 'Não foi possível calcular a distância',
       STATUS: 400,
     },
+    INVALID_COORDINATES: {
+      CODE: 'INVALID_COORDINATES',
+      DESCRIPTION: 'Coordenadas de origem ou destino inválidas',
+      STATUS: 400,
+    },
+    COORDINATES_NOT_FOUND: {
+      CODE: 'COORDINATES_NOT_FOUND',
+      DESCRIPTION: 'Coordenadas não encontradas',
+      STATUS: 400,
+    },
   },
 };
