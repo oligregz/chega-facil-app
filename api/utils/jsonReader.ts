@@ -1,4 +1,3 @@
-import { handleError } from 'src/errors/app-error';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -15,6 +14,6 @@ export async function jsonReader(
     const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     return data;
   } catch (error) {
-    handleError(error);
+    console.error(error);
   }
 }
