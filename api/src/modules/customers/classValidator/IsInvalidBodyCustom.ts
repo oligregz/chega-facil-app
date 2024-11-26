@@ -19,7 +19,7 @@ export function IsInvalidBodyCustom(validationOptions?: ValidationOptions) {
           return isNotEmpty(value);
         },
         defaultMessage() {
-          return `${ERROR.CODE.INVALID_DATA}]|[${ERROR.DESCRIPTION.INVALID_DATA}`;
+          return `${ERROR.CODE_DESCRIPTION_STATUS.INVALID_DATA.CODE}]|[${ERROR.CODE_DESCRIPTION_STATUS.INVALID_DATA.DESCRIPTION}`;
         },
       },
     });
