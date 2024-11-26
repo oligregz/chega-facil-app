@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { RidesService } from './rides.service';
 import { RideEstimateBodyDTO } from './dtos/RideEstimateBodyDTO';
+import { IRideResponse } from './interfaces/IRideResponse';
 
 @Controller('ride')
 export class RidesController {
@@ -9,8 +10,7 @@ export class RidesController {
   @Post('estimate')
   async estimateRide(
     @Body() data: RideEstimateBodyDTO,
-    // change Promise<number> for Promise<DriverRideCostDTO>
-  ): Promise<number> {
+  ): Promise<IRideResponse> {
     return this.ridesService.estimateRide(data);
   }
 }
