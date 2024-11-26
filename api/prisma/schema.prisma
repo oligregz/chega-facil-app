@@ -15,7 +15,7 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean
-  Rid       Ride[]
+  Ride      Ride[]
 
   @@unique([name, phone, email])
   @@map("customers")
@@ -25,15 +25,17 @@ model Driver {
   id              String   @id @default(uuid())
   name            String
   email           String
+  description     String
   phone           String
-  car             String
-  review          Float
+  vehicle         String
+  rating          Float
+  lastComment     String
   rate            Float
   minimumDistance Float
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   isActive        Boolean
-  Rid             Ride[]
+  Ride            Ride[]
 
   @@unique([name, phone, email])
   @@map("drivers")
