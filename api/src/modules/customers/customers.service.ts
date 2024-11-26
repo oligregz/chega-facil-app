@@ -3,6 +3,7 @@ import { PrismaService } from '../../database/PrismaService';
 import { AppError } from 'src/errors/app-error';
 import { Customer } from '@prisma/client';
 import { CustomerCreateBodyDTO } from './dtos/CustomerCreateBodyDTO';
+import { ERROR } from 'src/errors/errors';
 
 @Injectable()
 export class CustomersService {
@@ -12,7 +13,11 @@ export class CustomersService {
     const customers = await this.prisma.customer.findMany();
 
     if (customers.length === 0) {
-      throw new AppError('NOT_FOUND', 'Clientes não encontrados', 404);
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.STATUS,
+      );
     }
 
     return customers;
@@ -31,7 +36,11 @@ export class CustomersService {
     });
 
     if (customer) {
-      throw new AppError('ALREADY_EXISTS', 'Esse cliente já existe', 409);
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.STATUS,
+      );
     }
 
     return customer;
@@ -40,7 +49,11 @@ export class CustomersService {
   async create(data: CustomerCreateBodyDTO): Promise<Customer> {
     const hasCustomer = await this.findCustomer(data);
     if (hasCustomer) {
-      throw new AppError('ALREADY_EXISTS', 'Esse cliente já existe', 409);
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.STATUS,
+      );
     }
 
     const customer = await this.prisma.customer.create({
