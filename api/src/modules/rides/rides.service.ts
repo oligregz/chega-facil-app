@@ -2,32 +2,62 @@ import { Injectable } from '@nestjs/common';
 import { RideEstimateBodyDTO } from './dtos/RideEstimateBodyDTO';
 import { PrismaService } from 'src/database/PrismaService';
 import { Driver } from '@prisma/client';
-import { DriverRideCostDTO } from './dtos/DriverRideCostDTO';
-import { getDistanceByMapsServiceApi } from 'src/utils/getDistanceByMapsServiceApi';
+import { convertMetersPerKilometer } from '../../utils/convertMetersPerKilometer';
 import { AppError } from '../../errors/AppError';
-import { ERROR } from 'src/errors/errors';
-import { getDistanceMatrix } from './utils/googleMapsConsumer';
+import { ERROR } from '../../errors/errors';
+import { getTimeAndDistanceOfRide } from './utils/googleMapsConsumer';
+import { IDriverRideCost } from './interfaces/IDriverRideCost';
+import { validateOriginIsDiferentDestination } from './utils/validateOriginIsDiferentDestination';
+import { IRideResponse } from './interfaces/IRideResponse';
+import { convertForFloat } from 'src/utils/covertForFloat';
 
 @Injectable()
 export class RidesService {
   constructor(private prisma: PrismaService) {}
 
-  async estimateRide(data: RideEstimateBodyDTO): Promise<number> {
+  async estimateRide(data: RideEstimateBodyDTO): Promise<IRideResponse> {
     const { origin, destination } = data;
-    const mode = 'driving';
 
-    const distanceRide = await getDistanceMatrix(origin, destination, mode);
-    console.log(distanceRide);
-    // TODO implements correct return
-    return await 1;
+    validateOriginIsDiferentDestination(origin, destination);
+
+    const mode: string = 'driving';
+    const dataOfRide = await getTimeAndDistanceOfRide(
+      origin,
+      destination,
+      mode,
+    );
+
+    const rideDistance: number = convertMetersPerKilometer(
+      dataOfRide.distanceValue,
+    );
+
+    const listOptionsOfCostRidePerDrivers =
+      await this.getCostRidePerDriver(rideDistance);
+
+    const {
+      originCoordinates,
+      destinationCoordinates,
+      distanceValue,
+      durationText,
+    } = dataOfRide;
+
+    const estimateRideWithDriverOptions = {
+      origin: {
+        latitude: convertForFloat(parseFloat(originCoordinates.lat), 6),
+        longitude: convertForFloat(parseFloat(originCoordinates.lng), 6),
+      },
+      destination: {
+        latitude: convertForFloat(parseFloat(originCoordinates.lat), 6),
+        longitude: convertForFloat(parseFloat(originCoordinates.lng), 6),
+      },
+      distance: distanceValue,
+      duration: durationText,
+      options: listOptionsOfCostRidePerDrivers,
+    };
+    return estimateRideWithDriverOptions;
   }
 
-  async calculateCostRidePerDriver(
-    data: RideEstimateBodyDTO,
-  ): Promise<DriverRideCostDTO[]> {
-    const { origin, destination } = data;
-    const rideDistance = await getDistanceByMapsServiceApi(origin, destination);
-
+  async getCostRidePerDriver(rideDistance: number): Promise<IDriverRideCost[]> {
     const availableDrivers =
       await this.listAvailableDriversPerMinimunDistance(rideDistance);
 
@@ -39,12 +69,11 @@ export class RidesService {
         name,
         description,
         vehicle,
-        lastComment,
         review: {
           rating,
           comment: lastComment,
         },
-        value: rate * rideDistance,
+        value: `R$ ${convertForFloat(rate * rideDistance, 2)}/km`,
       };
     });
 
