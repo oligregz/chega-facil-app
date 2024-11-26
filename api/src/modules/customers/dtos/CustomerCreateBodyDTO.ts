@@ -1,23 +1,16 @@
-import {
-  IsDate,
-  IsDateString,
-  IsEmpty,
-  IsNotEmpty,
-  IsString,
-} from 'class-validator';
+import { IsInvalidBodyCustom } from '../classValidator/IsInvalidBodyCustom';
 
 export class CustomerCreateBodyDTO {
-  @IsNotEmpty()
-  @IsString()
+  @IsInvalidBodyCustom()
   name: string;
 
-  @IsNotEmpty()
+  @IsInvalidBodyCustom()
   isActive: boolean;
 
-  @IsNotEmpty()
+  @IsInvalidBodyCustom()
   phone: string;
 
-  @IsString()
+  @IsInvalidBodyCustom()
   email: string;
 
   createdAt?: Date | string;

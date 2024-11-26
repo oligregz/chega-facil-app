@@ -11,7 +11,9 @@ export class CustomersService {
   async findAll(): Promise<Customer[]> {
     const customers = await this.prisma.customer.findMany();
 
-    if (customers.length === 0) throw new AppError('Customers not found', 404);
+    if (customers.length === 0) {
+      throw new AppError('NOT_FOUND', 'Clientes não encontrados', 404);
+    }
 
     return customers;
   }
@@ -28,13 +30,18 @@ export class CustomersService {
       },
     });
 
+    if (customer) {
+      throw new AppError('ALREADY_EXISTS', 'Esse cliente já existe', 409);
+    }
+
     return customer;
   }
 
   async create(data: CustomerCreateBodyDTO): Promise<Customer> {
     const hasCustomer = await this.findCustomer(data);
-
-    if (hasCustomer) throw new AppError('Customer alerady exists', 409);
+    if (hasCustomer) {
+      throw new AppError('ALREADY_EXISTS', 'Esse cliente já existe', 409);
+    }
 
     const customer = await this.prisma.customer.create({
       data,
