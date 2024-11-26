@@ -4,7 +4,7 @@ import { PrismaService } from 'src/database/PrismaService';
 import { Driver } from '@prisma/client';
 import { DriverRideCostDTO } from './dtos/DriverRideCostDTO';
 import { getDistanceByMapsServiceApi } from 'src/utils/getDistanceByMapsServiceApi';
-import { AppError } from 'src/errors/app-error';
+import { AppError } from '../../errors/AppError';
 
 @Injectable()
 export class RidesService {

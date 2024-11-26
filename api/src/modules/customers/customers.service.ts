@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/PrismaService';
-import { AppError } from 'src/errors/app-error';
+import { AppError } from '../../errors/AppError';
 import { Customer } from '@prisma/client';
 import { CustomerCreateBodyDTO } from './dtos/CustomerCreateBodyDTO';
 import { ERROR } from 'src/errors/errors';

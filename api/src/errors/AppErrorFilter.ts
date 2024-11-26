@@ -7,7 +7,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { AppError } from './app-error';
+import { AppError } from './AppError';
 
 @Catch()
 export class AppErrorFilter implements ExceptionFilter {
