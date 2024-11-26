@@ -4,6 +4,7 @@ import { PrismaService } from 'src/database/PrismaService';
 import { Driver } from '@prisma/client';
 import { DriverRideCostDTO } from './dtos/DriverRideCostDTO';
 import { getDistanceByMapsServiceApi } from 'src/utils/getDistanceByMapsServiceApi';
+import { AppError } from 'src/errors/app-error';
 
 @Injectable()
 export class RidesService {
@@ -55,6 +56,8 @@ export class RidesService {
         isActive: true,
       },
     });
+
+    if (!availableDrivers) throw new AppError ()
 
     return availableDrivers;
   }
