@@ -5,13 +5,19 @@ import { Driver } from '@prisma/client';
 import { DriverRideCostDTO } from './dtos/DriverRideCostDTO';
 import { getDistanceByMapsServiceApi } from 'src/utils/getDistanceByMapsServiceApi';
 import { AppError } from '../../errors/AppError';
+import { ERROR } from 'src/errors/errors';
+import { getDistanceMatrix } from './utils/googleMapsConsumer';
 
 @Injectable()
 export class RidesService {
   constructor(private prisma: PrismaService) {}
 
   async estimateRide(data: RideEstimateBodyDTO): Promise<number> {
-    // TODO add service api for catch ride distance
+    const { origin, destination } = data;
+    const mode = 'driving';
+
+    const distanceRide = await getDistanceMatrix(origin, destination, mode);
+    console.log(distanceRide);
     // TODO implements correct return
     return await 1;
   }
@@ -57,7 +63,12 @@ export class RidesService {
       },
     });
 
-    if (!availableDrivers) throw new AppError ()
+    if (!availableDrivers)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVERS_AVAILABE_DISTANCE_NOT_FOUND.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVERS_AVAILABE_DISTANCE_NOT_FOUND.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVERS_AVAILABE_DISTANCE_NOT_FOUND.STATUS,
+      );
 
     return availableDrivers;
   }
