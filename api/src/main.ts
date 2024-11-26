@@ -3,11 +3,21 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { main as seedDatabase } from 'prisma/seed';
+import { AppErrorFilter } from './errors/AppErrorFilter';
+// import { AppErrorFilter } from './errors/app-error';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Remove propriedades não decoradas
+      forbidNonWhitelisted: true, // Lança erro se houver propriedades extras
+      transform: true, // Transforma os dados recebidos para as classes DTO
+    }),
+  );
+
+  app.useGlobalFilters(new AppErrorFilter());
   const prisma = new PrismaClient();
 
   try {
