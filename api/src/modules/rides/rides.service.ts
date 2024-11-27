@@ -104,6 +104,21 @@ export class RidesService {
     return availableDrivers;
   }
 
+  async confirmeAndSaveRide(
+    data: RideSelectedBodyDTO,
+  ): Promise<IRideConfirmedResponse> {
+    // const { customer_id, duration, driver, distance, origin, destination, value } = data;
+    // await this.validateDriver(driver.id, distance, origin, destination);
+
+    // const ride = this.prisma.ride.create({
+    //   customerId
+    // })
+
+    // const updatedRide
+
+    return { success: true };
+  }
+
   async validateDriver(
     driverId: string,
     rideDistance: number,
