@@ -1,17 +1,24 @@
+networks:
+  app-network:
+    driver: bridge
+
 services:
-  # interface:
-  #   build:
-  #     context: ./interface
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "80:3000"
-  #   volumes:
-  #     - ./interface:/app
-  #     - /app/node_modules
-  #   depends_on:
-  #     - api
-  #   environment:
-  #     - REACT_APP_API_URL=http://localhost:80
+  interface:
+    build:
+      context: ./interface
+      dockerfile: Dockerfile
+    ports:
+      - "80:5173"
+    volumes:
+      - ./interface:/app/interface
+      - ./.env:/app/interface/.env
+      - /app/node_modules
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      - VITE_API_URL=http://localhost:8080
+      - NODE_ENV=development
 
   api:
     build:

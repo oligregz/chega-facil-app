@@ -5,6 +5,26 @@ package-lock.json
 
 # Interfacce
 interface/node_modules
+interface/dist
+interface/dist-ssr
+interface/*.local
+interface/logs
+interface/*.log
+interface/npm-debug.log*
+interface/yarn-debug.log*
+interface/yarn-error.log*
+interface/pnpm-debug.log*
+interface/lerna-debug.log*
+interface/.vscode/*
+interface/!.vscode/extensions.json
+interface/.idea
+interface/.DS_Store
+interface/*.suo
+interface/*.ntvs*
+interface/*.njsproj
+interface/*.sln
+interface/*.sw?
+
 
 # Api
 api/node_modules
