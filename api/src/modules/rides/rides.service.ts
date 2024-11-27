@@ -10,6 +10,8 @@ import { IDriverRideCost } from './interfaces/IDriverRideCost';
 import { validateOriginIsDiferentDestination } from './utils/validateOriginIsDiferentDestination';
 import { IRideResponse } from './interfaces/IRideResponse';
 import { convertForFloat } from 'src/utils/covertForFloat';
+import { RideSelectedBodyDTO } from './dtos/RideSelectedBodyDTO';
+import { IRideConfirmedResponse } from './interfaces/IRideConfirmedResponse';
 
 @Injectable()
 export class RidesService {
@@ -100,5 +102,39 @@ export class RidesService {
       );
 
     return availableDrivers;
+  }
+
+  async validateDriver(
+    driverId: string,
+    rideDistance: number,
+    origin: string,
+    destination: string,
+  ): Promise<boolean> {
+    validateOriginIsDiferentDestination(origin, destination);
+
+    const driver = await this.prisma.driver.findUnique({
+      where: {
+        id: driverId,
+      },
+    });
+
+    if (!driver)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_NOT_FOUND.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_NOT_FOUND.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_NOT_FOUND.STATUS,
+      );
+
+    const driverIsValid =
+      driver.isActive === true && rideDistance >= driver.minimumDistance;
+
+    if (!driverIsValid)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_INVALID_DISTANCE.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_INVALID_DISTANCE.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_INVALID_DISTANCE.STATUS,
+      );
+
+    return true;
   }
 }
