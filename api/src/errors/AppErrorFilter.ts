@@ -25,13 +25,13 @@ export class AppErrorFilter implements ExceptionFilter {
 
     // If it is a validation error (BadRequestException)
     if (exception instanceof BadRequestException) {
-      console.log('_____exception', exception);
-      const error = exception.getResponse() as any;
+      const errors = exception.getResponse() as any;
+      console.log('_____errors: ', errors);
       const [error_code_splited, error_description_splited] =
-        splitErrorMessages(error);
+        splitErrorMessages(errors);
 
       // If it is a class-validator validation error
-      if (Array.isArray(error.message)) {
+      if (Array.isArray(errors.message)) {
         return response.status(HttpStatus.BAD_REQUEST).json({
           error_code: error_code_splited,
           error_description: error_description_splited,
@@ -61,11 +61,23 @@ export class AppErrorFilter implements ExceptionFilter {
   }
 }
 
-export function splitErrorMessages(error: NonNullable<any>): string[] {
+export function splitErrorMessages(errors: NonNullable<any>): string[] {
+  let customErrorMessage: string;
+
+  // Treatment for multiple body errors
+  if (errors.message.length > 1 && Array.isArray(errors.message)) {
+    customErrorMessage = errors.message.find((err: string) => {
+      return err.includes(']|[');
+    });
+    console.log('________customErrorMessage: ', customErrorMessage);
+    return customErrorMessage.split(']|[');
+  }
+
   // Treatment for body syntax errors
-  if (!error.message[0].includes(']|[')) return ['INVALID_DATA', error.message];
+  if (!errors.message[0].includes(']|['))
+    return ['INVALID_DATA', errors.message];
 
   // Tratament for custom error handling
-  const messages = error.message[0].split(']|[');
+  const messages = errors.message[0].split(']|[');
   return messages;
 }

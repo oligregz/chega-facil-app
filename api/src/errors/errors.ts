@@ -71,5 +71,10 @@ export const ERROR = {
       DESCRIPTION: 'Coordenadas não encontradas',
       STATUS: 400,
     },
+    BAD_RIDE_UPDATION: {
+      CODE: 'BAD_RIDE_UPDATION',
+      DESCRIPTION: 'Falha ao atualizar a corrida',
+      STATUS: 400,
+    },
   },
 };

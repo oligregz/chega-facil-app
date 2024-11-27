@@ -50,19 +50,16 @@ enum RideStatus {
 }
 
 model Ride {
-  id                   String     @id @default(uuid())
-  customerId           String
-  driverId             String
-  originLatitude       Decimal
-  originLongitude      Decimal
-  destinationLatitude  Decimal
-  destinationLongitude Decimal
-  startTime            DateTime?
-  endTime              DateTime?
-  distance             Float?
-  price                Float?
-  status               RideStatus @default(REQUESTED)
-  cancellationReason   String?
+  id                 String     @id @default(uuid())
+  customerId         String
+  driverId           String
+  origin             String
+  destination        String
+  duration           String
+  distance           Float?
+  value              Float?
+  status             RideStatus @default(REQUESTED)
+  cancellationReason String?
 
   customer Customer @relation(fields: [customerId], references: [id])
   driver   Driver   @relation(fields: [driverId], references: [id])

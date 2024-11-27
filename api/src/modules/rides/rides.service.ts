@@ -10,6 +10,9 @@ import { IDriverRideCost } from './interfaces/IDriverRideCost';
 import { validateOriginIsDiferentDestination } from './utils/validateOriginIsDiferentDestination';
 import { IRideResponse } from './interfaces/IRideResponse';
 import { convertForFloat } from 'src/utils/covertForFloat';
+import { RideSelectedBodyDTO } from './dtos/RideSelectedBodyDTO';
+import { IRideConfirmedResponse } from './interfaces/IRideConfirmedResponse';
+import { RideStatus } from './enums/RideStatusEnum';
 
 @Injectable()
 export class RidesService {
@@ -100,5 +103,98 @@ export class RidesService {
       );
 
     return availableDrivers;
+  }
+
+  async confirmeAndSaveRide(
+    data: RideSelectedBodyDTO,
+  ): Promise<IRideConfirmedResponse> {
+    const {
+      customer_id,
+      duration,
+      driver,
+      distance,
+      origin,
+      destination,
+      value,
+    } = data;
+    await this.validateDriver(driver.id, distance, origin, destination);
+
+    const customerExists = await this.prisma.customer.findUnique({
+      where: {
+        id: customer_id,
+      },
+    });
+
+    if (!customerExists)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.STATUS,
+      );
+
+    const ride = this.prisma.ride.create({
+      data: {
+        customerId: customer_id,
+        driverId: driver.id,
+        origin: origin,
+        destination: destination,
+        status: RideStatus.REQUESTED,
+        value: value,
+        distance: convertMetersPerKilometer(distance),
+        duration: duration,
+      },
+    });
+
+    const updatedRide = await this.prisma.ride.update({
+      where: {
+        id: (await ride).id,
+      },
+      data: {
+        status: RideStatus.COMPLETED,
+      },
+    });
+
+    if (updatedRide.status !== RideStatus.COMPLETED)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.BAD_RIDE_UPDATION.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.BAD_RIDE_UPDATION.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.BAD_RIDE_UPDATION.STATUS,
+      );
+
+    return { success: true };
+  }
+
+  async validateDriver(
+    driverId: string,
+    rideDistance: number,
+    origin: string,
+    destination: string,
+  ): Promise<boolean> {
+    validateOriginIsDiferentDestination(origin, destination);
+
+    const driver = await this.prisma.driver.findUnique({
+      where: {
+        id: driverId,
+      },
+    });
+
+    if (!driver)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_NOT_FOUND.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_NOT_FOUND.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_NOT_FOUND.STATUS,
+      );
+
+    const driverIsValid =
+      driver.isActive === true && rideDistance >= driver.minimumDistance;
+
+    if (!driverIsValid)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_INVALID_DISTANCE.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_INVALID_DISTANCE.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.DRIVER_INVALID_DISTANCE.STATUS,
+      );
+
+    return true;
   }
 }
