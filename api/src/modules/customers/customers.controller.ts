@@ -8,11 +8,11 @@ export class CustomersController {
 
   @Get()
   async list() {
-    return await this.customersService.findAll();
+    return this.customersService.findAll();
   }
 
   @Post()
   async create(@Body() data: CustomerCreateBodyDTO) {
-    return await this.customersService.create(data);
+    return this.customersService.create(data);
   }
 }

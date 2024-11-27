@@ -41,11 +41,6 @@ export const ERROR = {
         'Motoristas com disponibilidade de distancia mínima para o trajeto passado, não encontrados',
       STATUS: 404,
     },
-    NO_RIDES_FOUND: {
-      CODE: 'NO_RIDES_FOUND',
-      DESCRIPTION: 'Nenhum registro encontrado',
-      STATUS: 404,
-    },
     INVALID_API_KEY: {
       CODE: 'INVALID_API_KEY',
       DESCRIPTION: 'Chave da api não configurada no .env',
@@ -74,7 +69,7 @@ export const ERROR = {
     COORDINATES_NOT_FOUND: {
       CODE: 'COORDINATES_NOT_FOUND',
       DESCRIPTION: 'Coordenadas não encontradas',
-      STATUS: 404,
+      STATUS: 400,
     },
     BAD_RIDE_UPDATION: {
       CODE: 'BAD_RIDE_UPDATION',

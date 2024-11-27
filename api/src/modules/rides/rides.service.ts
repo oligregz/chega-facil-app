@@ -13,9 +13,6 @@ import { convertForFloat } from 'src/utils/covertForFloat';
 import { RideSelectedBodyDTO } from './dtos/RideSelectedBodyDTO';
 import { IRideConfirmedResponse } from './interfaces/IRideConfirmedResponse';
 import { RideStatus } from './enums/RideStatusEnum';
-import { IParamerters } from './interfaces/IParameters';
-import { IFormattedListResponse } from './interfaces/IFormattedListResponse';
-import { IConditions } from './interfaces/IConditions';
 
 @Injectable()
 export class RidesService {
@@ -53,8 +50,8 @@ export class RidesService {
         longitude: convertForFloat(parseFloat(originCoordinates.lng), 6),
       },
       destination: {
-        latitude: convertForFloat(parseFloat(destinationCoordinates.lat), 6),
-        longitude: convertForFloat(parseFloat(destinationCoordinates.lng), 6),
+        latitude: convertForFloat(parseFloat(originCoordinates.lat), 6),
+        longitude: convertForFloat(parseFloat(originCoordinates.lng), 6),
       },
       distance: distanceValue,
       duration: durationText,
@@ -139,8 +136,6 @@ export class RidesService {
       data: {
         customerId: customer_id,
         driverId: driver.id,
-        driverName: driver.name,
-        date: new Date(),
         origin: origin,
         destination: destination,
         status: RideStatus.REQUESTED,
@@ -156,7 +151,6 @@ export class RidesService {
       },
       data: {
         status: RideStatus.COMPLETED,
-        date: new Date(),
       },
     });
 
@@ -202,45 +196,5 @@ export class RidesService {
       );
 
     return true;
-  }
-
-  async listRides(parameters: IParamerters): Promise<IFormattedListResponse> {
-    const { customerId, driverId } = parameters;
-
-    const conditions: IConditions = { customerId };
-    if (driverId && driverId !== '') {
-      conditions.driverId = driverId;
-    }
-
-    const rides = await this.prisma.ride.findMany({
-      where: conditions,
-    });
-
-    if (!rides)
-      throw new AppError(
-        ERROR.CODE_DESCRIPTION_STATUS.NO_RIDES_FOUND.CODE,
-        ERROR.CODE_DESCRIPTION_STATUS.NO_RIDES_FOUND.DESCRIPTION,
-        ERROR.CODE_DESCRIPTION_STATUS.NO_RIDES_FOUND.STATUS,
-      );
-
-    const ridesPerParameterFormatted = {
-      customer_id: customerId,
-      rides: rides.map((ride) => {
-        return {
-          id: ride.id,
-          date: ride.date,
-          origin: ride.origin,
-          destination: ride.destination,
-          distance: ride.distance,
-          duration: ride.duration,
-          driver: {
-            id: ride.driverId,
-            name: ride.driverName,
-          },
-          value: ride.value,
-        };
-      }),
-    };
-    return ridesPerParameterFormatted;
   }
 }

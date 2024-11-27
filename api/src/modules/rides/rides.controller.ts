@@ -1,21 +1,16 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
-  Param,
   Patch,
   Post,
-  Query,
 } from '@nestjs/common';
 import { RidesService } from './rides.service';
 import { RideEstimateBodyDTO } from './dtos/RideEstimateBodyDTO';
 import { IRideResponse } from './interfaces/IRideResponse';
 import { IRideConfirmedResponse } from './interfaces/IRideConfirmedResponse';
 import { RideSelectedBodyDTO } from './dtos/RideSelectedBodyDTO';
-import { validateId } from './utils/validateId';
-import { IFormattedListResponse } from './interfaces/IFormattedListResponse';
 
 @Controller('ride')
 export class RidesController {
@@ -26,7 +21,7 @@ export class RidesController {
   async estimateRide(
     @Body() data: RideEstimateBodyDTO,
   ): Promise<IRideResponse> {
-    return await this.ridesService.estimateRide(data);
+    return this.ridesService.estimateRide(data);
   }
 
   @Patch('confirm')
@@ -34,19 +29,6 @@ export class RidesController {
   async confirmAndSaveRide(
     @Body() data: RideSelectedBodyDTO,
   ): Promise<IRideConfirmedResponse> {
-    return await this.ridesService.confirmeAndSaveRide(data);
-  }
-
-  @Get(':customer_id?')
-  async listRides(
-    @Param('customer_id') customerId: string = '',
-    @Query('driver_id') driverId: string = '',
-  ): Promise<IFormattedListResponse> {
-    validateId(driverId, 'driver');
-    validateId(customerId, 'customer');
-
-    const parameters = { customerId, driverId };
-
-    return await this.ridesService.listRides(parameters);
+    return this.ridesService.confirmeAndSaveRide(data);
   }
 }

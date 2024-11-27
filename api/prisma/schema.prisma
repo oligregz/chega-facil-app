@@ -53,10 +53,8 @@ model Ride {
   id                 String     @id @default(uuid())
   customerId         String
   driverId           String
-  driverName         String
   origin             String
   destination        String
-  date               DateTime
   duration           String
   distance           Float?
   value              Float?
