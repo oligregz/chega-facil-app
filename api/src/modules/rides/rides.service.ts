@@ -12,6 +12,7 @@ import { IRideResponse } from './interfaces/IRideResponse';
 import { convertForFloat } from 'src/utils/covertForFloat';
 import { RideSelectedBodyDTO } from './dtos/RideSelectedBodyDTO';
 import { IRideConfirmedResponse } from './interfaces/IRideConfirmedResponse';
+import { RideStatus } from './enums/RideStatusEnum';
 
 @Injectable()
 export class RidesService {
@@ -107,14 +108,58 @@ export class RidesService {
   async confirmeAndSaveRide(
     data: RideSelectedBodyDTO,
   ): Promise<IRideConfirmedResponse> {
-    // const { customer_id, duration, driver, distance, origin, destination, value } = data;
-    // await this.validateDriver(driver.id, distance, origin, destination);
+    const {
+      customer_id,
+      duration,
+      driver,
+      distance,
+      origin,
+      destination,
+      value,
+    } = data;
+    await this.validateDriver(driver.id, distance, origin, destination);
 
-    // const ride = this.prisma.ride.create({
-    //   customerId
-    // })
+    const customerExists = await this.prisma.customer.findUnique({
+      where: {
+        id: customer_id,
+      },
+    });
 
-    // const updatedRide
+    if (!customerExists)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.STATUS,
+      );
+
+    const ride = this.prisma.ride.create({
+      data: {
+        customerId: customer_id,
+        driverId: driver.id,
+        origin: origin,
+        destination: destination,
+        status: RideStatus.REQUESTED,
+        value: value,
+        distance: convertMetersPerKilometer(distance),
+        duration: duration,
+      },
+    });
+
+    const updatedRide = await this.prisma.ride.update({
+      where: {
+        id: (await ride).id,
+      },
+      data: {
+        status: RideStatus.COMPLETED,
+      },
+    });
+
+    if (updatedRide.status !== RideStatus.COMPLETED)
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.BAD_RIDE_UPDATION.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.BAD_RIDE_UPDATION.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.BAD_RIDE_UPDATION.STATUS,
+      );
 
     return { success: true };
   }

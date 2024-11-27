@@ -29,6 +29,6 @@ export class RidesController {
   async confirmAndSaveRide(
     @Body() data: RideSelectedBodyDTO,
   ): Promise<IRideConfirmedResponse> {
-    return { success: true };
+    return this.ridesService.confirmeAndSaveRide(data);
   }
 }

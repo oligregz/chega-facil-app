@@ -55,10 +55,9 @@ model Ride {
   driverId           String
   origin             String
   destination        String
-  startTime          DateTime?
-  endTime            DateTime?
+  duration           String
   distance           Float?
-  price              Float?
+  value              Float?
   status             RideStatus @default(REQUESTED)
   cancellationReason String?
 
