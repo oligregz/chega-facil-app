@@ -10,30 +10,38 @@ datasource db {
 model Customer {
   id        String   @id @default(uuid())
   name      String
-  email     String?
-  phone     String?
+  email     String
+  phone     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean
-  Trip      Trip[]
+  Ride      Ride[]
 
+  @@unique([name, phone, email])
   @@map("customers")
 }
 
 model Driver {
-  id        String   @id @default(uuid())
-  name      String
-  email     String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean
-  Trip      Trip[]
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  description     String
+  phone           String
+  vehicle         String
+  rating          Float
+  lastComment     String
+  rate            Float
+  minimumDistance Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  isActive        Boolean
+  Ride            Ride[]
 
+  @@unique([name, phone, email])
   @@map("drivers")
 }
 
-enum TripStatus {
+enum RideStatus {
   REQUESTED
   CONFIRMED
   IN_PROGRESS
@@ -41,7 +49,7 @@ enum TripStatus {
   CANCELLED
 }
 
-model Trip {
+model Ride {
   id                   String     @id @default(uuid())
   customerId           String
   driverId             String
@@ -53,11 +61,11 @@ model Trip {
   endTime              DateTime?
   distance             Float?
   price                Float?
-  status               TripStatus @default(REQUESTED)
+  status               RideStatus @default(REQUESTED)
   cancellationReason   String?
 
   customer Customer @relation(fields: [customerId], references: [id])
   driver   Driver   @relation(fields: [driverId], references: [id])
 
-  @@map("trips")
+  @@map("rides")
 }

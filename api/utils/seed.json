@@ -1,0 +1,142 @@
+{
+  "customers": [
+    {
+      "name": "Alice Smith",
+      "email": "alicesmith@example.com",
+      "phone": "+987654321",
+      "isActive": true
+    }
+  ],
+  "drivers": [
+    {
+      "name": "Dominic Toretto",
+      "email": "dom@example.com",
+      "phone": "+123456700",
+      "vehicle": "Dodge Charger",
+      "lastComment": "A skilled driver, always on time",
+      "description": "Street racing legend",
+      "review": 4.9,
+      "rate": 18.50,
+      "minimumDistance": 10,
+      "isActive": true,
+      "rating": 4.9
+    },
+    {
+      "name": "Brian O'Conner",
+      "email": "brian@example.com",
+      "phone": "+123456701",
+      "vehicle": "Nissan Skyline",
+      "lastComment": "Knows how to handle any situation",
+      "description": "Fast and focused",
+      "review": 4.8,
+      "rate": 16.25,
+      "minimumDistance": 12,
+      "isActive": true,
+      "rating": 4.8
+    },
+    {
+      "name": "Luke Hobbs",
+      "email": "hobbs@example.com",
+      "phone": "+123456702",
+      "vehicle": "Ford Mustang",
+      "lastComment": "Reliable and always gets the job done",
+      "description": "Powerful presence, quick to act",
+      "review": 4.7,
+      "rate": 14.80,
+      "minimumDistance": 15,
+      "isActive": true,
+      "rating": 4.7
+    },
+    {
+      "name": "Mia Toretto",
+      "email": "mia@example.com",
+      "phone": "+123456703",
+      "vehicle": "Chevrolet Corvette",
+      "lastComment": "Smooth driver, great service",
+      "description": "Grace on the road",
+      "review": 4.6,
+      "rate": 12.90,
+      "minimumDistance": 6.2,
+      "isActive": true,
+      "rating": 4.6
+    },
+    {
+      "name": "Letty Ortiz",
+      "email": "letty@example.com",
+      "phone": "+123456704",
+      "vehicle": "Chevrolet Camaro",
+      "lastComment": "Never misses a beat, always dependable",
+      "description": "Tough and fearless",
+      "review": 4.5,
+      "rate": 13.50,
+      "minimumDistance": 10,
+      "isActive": true,
+      "rating": 4.5
+    },
+    {
+      "name": "Roman Pearce",
+      "email": "roman@example.com",
+      "phone": "+123456705",
+      "vehicle": "Mitsubishi Eclipse",
+      "lastComment": "Enjoyable ride, friendly service",
+      "description": "The life of the party",
+      "review": 4.3,
+      "rate": 11.20,
+      "minimumDistance": 20,
+      "isActive": true,
+      "rating": 4.3
+    },
+    {
+      "name": "Tej Parker",
+      "email": "tej@example.com",
+      "phone": "+123456706",
+      "vehicle": "BMW M5",
+      "lastComment": "Smooth and professional service",
+      "description": "Tech-savvy and efficient",
+      "review": 4.4,
+      "rate": 15.40,
+      "minimumDistance": 5,
+      "isActive": true,
+      "rating": 4.4
+    },
+    {
+      "name": "Shifty",
+      "email": "shifty@example.com",
+      "phone": "+123456707",
+      "vehicle": "Honda Civic",
+      "lastComment": "Great pace, good communication",
+      "description": "Quick and agile",
+      "review": 4.2,
+      "rate": 9.80,
+      "minimumDistance": 18,
+      "isActive": true,
+      "rating": 4.2
+    },
+    {
+      "name": "Chad Reinis",
+      "email": "chad@example.com",
+      "phone": "+123456708",
+      "vehicle": "Porsche 911",
+      "lastComment": "Fast and efficient, always on point",
+      "description": "Precision at its best",
+      "review": 4.8,
+      "rate": 19.60,
+      "minimumDistance": 10,
+      "isActive": true,
+      "rating": 4.8
+    },
+    {
+      "name": "Conan Verone",
+      "email": "conanter@example.com",
+      "phone": "+123456709",
+      "vehicle": "Ferrari 360",
+      "lastComment": "Great handling and top speed",
+      "description": "Classy, fast, and reliable",
+      "review": 3.9,
+      "rate": 9.30,
+      "minimumDistance": 1.8,
+      "isActive": true,
+      "rating": 3.9
+    }
+  ]
+}

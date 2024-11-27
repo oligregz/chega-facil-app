@@ -1,8 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CustomersService } from './customers.service';
-import { CustomerDTO } from './customer.dto';
-import { handleError } from '../../errors/app-error';
-import { response } from 'express';
+import { CustomerCreateBodyDTO } from './dtos/CustomerCreateBodyDTO';
 
 @Controller('customers')
 export class CustomersController {
@@ -10,19 +8,11 @@ export class CustomersController {
 
   @Get()
   async list() {
-    try {
-      return this.customersService.findAll();
-    } catch (error) {
-      handleError(error, response);
-    }
+    return this.customersService.findAll();
   }
 
   @Post()
-  async create(@Body() data: CustomerDTO) {
-    try {
-      return this.customersService.create(data);
-    } catch (error) {
-      handleError(error, response);
-    }
+  async create(@Body() data: CustomerCreateBodyDTO) {
+    return this.customersService.create(data);
   }
 }

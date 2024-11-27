@@ -1,30 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/PrismaService';
-import { AppError } from 'src/errors/app-error';
-import { CustomerDTO } from './customer.dto';
+import { AppError } from '../../errors/AppError';
+import { Customer } from '@prisma/client';
+import { CustomerCreateBodyDTO } from './dtos/CustomerCreateBodyDTO';
+import { ERROR } from 'src/errors/errors';
 
 @Injectable()
 export class CustomersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(): Promise<Customer[]> {
     const customers = await this.prisma.customer.findMany();
+
+    if (customers.length === 0) {
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_NOT_FOUND.STATUS,
+      );
+    }
 
     return customers;
   }
 
-  async findById(data: CustomerDTO) {
-    const customer = await this.prisma.customer.findFirst({
-      where: {
-        id: data.id,
-      },
-    });
-
-    return customer;
-  }
-
-  async findCustomer(data: CustomerDTO) {
+  async findCustomer(data: CustomerCreateBodyDTO): Promise<Customer> {
     const { name, phone, email, isActive } = data;
+
     const customer = await this.prisma.customer.findFirst({
       where: {
         name,
@@ -34,13 +35,26 @@ export class CustomersService {
       },
     });
 
+    if (customer) {
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.STATUS,
+      );
+    }
+
     return customer;
   }
 
-  async create(data: CustomerDTO) {
+  async create(data: CustomerCreateBodyDTO): Promise<Customer> {
     const hasCustomer = await this.findCustomer(data);
-
-    if (hasCustomer) throw new AppError('Customer alerady exists', 409);
+    if (hasCustomer) {
+      throw new AppError(
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.CODE,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.DESCRIPTION,
+        ERROR.CODE_DESCRIPTION_STATUS.CUSTOMER_ALREADY_EXISTS.STATUS,
+      );
+    }
 
     const customer = await this.prisma.customer.create({
       data,
