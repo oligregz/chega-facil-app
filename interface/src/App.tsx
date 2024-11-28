@@ -70,13 +70,17 @@ const App: React.FC = () => {
   const [isTripSaved, setIsTripSaved] = useState<boolean>(false);
   const [isDriverDataVisible, setIsDriverDataVisible] = useState<boolean>(false);
   const [isTitleVisible, setIsTitleVisible] = useState<boolean>(true);
+  const [tripSearchTerm, setTripSearchTerm] = useState<string>('');
+  const [driverIdFilter, setDriverIdFilter] = useState<string>('');
 
   const [departure, setDeparture] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
 
   const [userChoice, setUserChoice] = useState<string | null>(null);
   
-  const [trips, setTrips] = useState<Trip[]>(initialTrips); // Inicializa com as viagens mockadas
+  const [trips, setTrips] = useState<Trip[]>(initialTrips);
+
+  const [isTripsTableVisible, setIsTripsTableVisible] = useState<boolean>(false);
 
   const isSearchButtonDisabled = !departure || !destination;
 
@@ -96,21 +100,29 @@ const App: React.FC = () => {
     setSelectedDriver(null);
   };
 
+  const handleTripSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTripSearchTerm(e.target.value);
+  };
+
+  const handleDriverIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDriverIdFilter(e.target.value);
+  };
+
   const handleConfirmTrip = () => {
     if (selectedDriver) {
-      // Simulando dados da viagem
       const newTrip: Trip = {
         driverName: selectedDriver.name,
         departure: departure,
         destination: destination,
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString(),
-        distance: '20 km', // Distância fictícia
-        duration: '30 min', // Tempo fictício
+        distance: '20 km',
+        duration: '30 min',
         price: selectedDriver.price,
       };
 
-      setTrips([...trips, newTrip]); // Adiciona a nova viagem ao histórico
+      const updatedTrips = [...trips, newTrip];
+      setTrips(updatedTrips);
       setSelectedDriverData(selectedDriver);
       setSelectedDriver(null);
       setIsTripSaved(true);
@@ -148,6 +160,7 @@ const App: React.FC = () => {
   const showMyTrips = () => {
     setUserChoice("myTrips");
     setIsTitleVisible(false);
+    setTripSearchTerm('');
   };
 
   const handleBackToMenu = () => {
@@ -275,10 +288,32 @@ const App: React.FC = () => {
       {userChoice === "myTrips" && (
         <div>
           <h2 className="text-2xl font-bold">Minhas viagens</h2>
-          {trips.length === 0 ? (
-            <p className="text-lg">Você ainda não fez nenhuma viagem.</p>
-          ) : (
-            <Table className="mt-4">
+          
+          <div className="flex items-center gap-2 mt-4 mb-4">
+            <Input
+              placeholder="Buscar por motorista, origem, destino ou data"
+              value={tripSearchTerm}
+              onChange={handleTripSearchChange}
+            />
+            <Input
+              placeholder="ID do motorista"
+              value={driverIdFilter}
+              onChange={handleDriverIdChange}
+            />
+            <Button
+              className="p-3"
+              type="button"
+              variant="outline"
+              disabled={!tripSearchTerm.trim()}
+              onClick={() => setIsTripsTableVisible(true)}
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Buscar
+            </Button>
+          </div>
+
+          {isTripsTableVisible && (
+            <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Motorista</TableHead>
@@ -307,6 +342,7 @@ const App: React.FC = () => {
               </TableBody>
             </Table>
           )}
+
           <Button onClick={handleBackToMenu} className="mt-4" variant="outline">
             Voltar
           </Button>
