@@ -5,67 +5,61 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Search } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from './components/ui/dialog'
 import { getDefaultCustomers } from './service/getDefaultCustomers'
+import { listDriversDefault } from './service/listDriversVailables'
+import { createRide } from './service/createRide'
+import { parseStrinForFloat } from './utils/parseStrinForFloat'
+
+export interface IReview {
+  rating: number;
+  comment: string;
+}
 
 interface Driver {
-  id: number;
+  price: ReactNode
+  rating: ReactNode
+  id: string;
   name: string;
   description: string;
   vehicle: string;
-  rating: number;
-  price: number;
+  review: IReview;
+  value: string;
 }
-
-interface Trip {
+export interface IRenderTrip {
   driverName: string;
-  departure: string;
-  destination: string;
   date: string;
   time: string;
+  departure: string;
+  destination: string;
   distance: string;
   duration: string;
-  price: number;
+  value: number;
 }
 
-const drivers: Driver[] = [
-  { id: 1, name: 'Brian', description: 'Good Driver', vehicle: 'Nissan Skilen', rating: 4.5, price: 100 },
-  { id: 2, name: 'John', description: 'Experienced Driver', vehicle: 'Honda Civic', rating: 4.7, price: 120 },
-];
-
-const initialTrips: Trip[] = [
-  {
-    driverName: 'Brian',
-    departure: 'Centro',
-    destination: 'Aeroporto',
-    date: '2024-11-25',
-    time: '10:30',
-    distance: '15 km',
-    duration: '20 min',
-    price: 100
-  },
-  {
-    driverName: 'John',
-    departure: 'Shopping',
-    destination: 'Praia',
-    date: '2024-11-26',
-    time: '14:00',
-    distance: '30 km',
-    duration: '40 min',
-    price: 120
-  },
-  {
-    driverName: 'Brian',
-    departure: 'Estádio',
-    destination: 'Centro',
-    date: '2024-11-27',
-    time: '18:15',
-    distance: '10 km',
-    duration: '15 min',
-    price: 80
+interface ISaveTrip {
+  customer_id?: string;
+  origin: string;
+  driver: {
+    id: string;
+    name: string;
   }
-];
+  destination: string;
+  distance: number;
+  duration: string;
+  value: number;
+}
+
+export interface ICustomerDefault {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+}
 
 const App: React.FC = () => {
-  const [defaultCustomer, setDefaultCustomer] = useState<unknown>(null);
+  const [defaultCustomer, setDefaultCustomer] = useState<ICustomerDefault>();
   const [showTable, setShowTable] = useState<boolean>(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [selectedDriverData, setSelectedDriverData] = useState<Driver | null>(null);
@@ -74,13 +68,16 @@ const App: React.FC = () => {
   const [isTitleVisible, setIsTitleVisible] = useState<boolean>(true);
   const [tripSearchTerm, setTripSearchTerm] = useState<string>('');
   const [driverIdFilter, setDriverIdFilter] = useState<string>('');
+  const [drivers, setDrivers] = useState<Driver[]>([]);
 
   const [departure, setDeparture] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
+  const [duration, setDuration] = useState<string>('');
+  const [distance, setDistance] = useState<number>(0);
 
   const [userChoice, setUserChoice] = useState<string | null>(null);
   
-  const [trips, setTrips] = useState<Trip[]>(initialTrips);
+  const [trips, setTrips] = useState<IRenderTrip[]>([]);
 
   const [isTripsTableVisible, setIsTripsTableVisible] = useState<boolean>(false);
 
@@ -89,10 +86,8 @@ const App: React.FC = () => {
   useEffect(() => {
     async function fetchDefaultCustomers() {
       try {
-        console.log("Página carregada com sucesso!");
         const customers = await getDefaultCustomers();
         setDefaultCustomer(customers[0]);
-        console.log(defaultCustomer);
       } catch (error) {
         console.error("Erro ao buscar os clientes:", error);
       }
@@ -103,18 +98,32 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (defaultCustomer) {
-      console.log("Cliente padrão atualizado:", defaultCustomer);
-    }
   }, [defaultCustomer]);
 
-  const handleSearch = () => {
-    if (!departure || !destination) {
-      alert('Preencha os campos');
-    } else {
-      setShowTable(true);
+  const handleSearch = async () => {
+    if (departure && destination) {
+      try {
+        const driversAvailables = await listDriversDefault({
+          customer_id: defaultCustomer?.id,
+          origin: departure,
+          destination: destination
+        });
+        setDrivers(driversAvailables.options);
+        setShowTable(true);
+        setDistance(driversAvailables.distance)
+        setDuration(driversAvailables.duration)
+      } catch (error) {
+        console.error("Erro ao buscar motoristas:", error);
+        setDrivers([]);
+      }
     }
   };
+
+  useEffect(() => {
+    if (drivers.options) {
+      console.log("Motoristas:", drivers.options);
+    }
+  }, [drivers]);
 
   const handleRowClick = (driver: Driver) => {
     setSelectedDriver(driver);
@@ -132,25 +141,30 @@ const App: React.FC = () => {
     setDriverIdFilter(e.target.value);
   };
 
-  const handleConfirmTrip = () => {
+  const handleConfirmTrip = async () => {
     if (selectedDriver) {
-      const newTrip: Trip = {
-        driverName: selectedDriver.name,
-        departure: departure,
+      const newTrip: ISaveTrip = {
+        customer_id: defaultCustomer?.id,
+        origin: departure,
         destination: destination,
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString(),
-        distance: '20 km',
-        duration: '30 min',
-        price: selectedDriver.price,
+        distance: distance,
+        duration: duration,
+        driver: {
+          id: selectedDriver.id,
+          name: selectedDriver.name
+        },
+        value: parseStrinForFloat(selectedDriver.value),
       };
+      
+      const createdTrip = await createRide(newTrip);
+      console.log('createdTrip', createdTrip)
 
-      const updatedTrips = [...trips, newTrip];
-      setTrips(updatedTrips);
-      setSelectedDriverData(selectedDriver);
+      // const updatedTrips = [...trips, newTrip];
+      // setTrips(updatedTrips);
+      setSelectedDriverData(createdTrip.success);
       setSelectedDriver(null);
       setIsTripSaved(true);
-      setIsDriverDataVisible(true);
+      setIsDriverDataVisible(createdTrip.success);
 
       setTimeout(() => {
         setIsTripSaved(false);
@@ -237,7 +251,7 @@ const App: React.FC = () => {
             </Button>
           </form>
 
-          {showTable && (
+          {showTable  && (
             <div className="border rounded-lg p-4 mt-8">
               <Table>
                 <TableHeader>
@@ -256,11 +270,11 @@ const App: React.FC = () => {
                       onClick={() => handleRowClick(driver)}
                       className="cursor-pointer"
                     >
-                      <TableCell>{driver.name}</TableCell>
-                      <TableCell>{driver.description}</TableCell>
-                      <TableCell>{driver.vehicle}</TableCell>
-                      <TableCell>{driver.rating}</TableCell>
-                      <TableCell>R$ {driver.price}</TableCell>
+                      <TableCell>{driver?.name}</TableCell>
+                      <TableCell>{driver?.description}</TableCell>
+                      <TableCell>{driver?.vehicle}</TableCell>
+                      <TableCell>{driver?.review.rating}</TableCell>
+                      <TableCell>{driver?.value}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -271,12 +285,12 @@ const App: React.FC = () => {
           {selectedDriver && (
             <Dialog open={Boolean(selectedDriver)} onOpenChange={(open) => !open && handleCloseModal()}>
               <DialogContent>
-                <DialogTitle>{selectedDriver.name}</DialogTitle>
+                <DialogTitle>{selectedDriver?.name}</DialogTitle>
                 <DialogDescription>
-                  <p>{selectedDriver.description}</p>
-                  <p><strong>Veículo:</strong> {selectedDriver.vehicle}</p>
-                  <p><strong>Avaliação:</strong> {selectedDriver.rating}</p>
-                  <p><strong>Valor da viagem:</strong> R$ {selectedDriver.price}</p>
+                  <p>{selectedDriver?.description}</p>
+                  <p><strong>Veículo:</strong> {selectedDriver?.vehicle}</p>
+                  <p><strong>Avaliação:</strong> {selectedDriver?.review.rating}</p>
+                  <p><strong>Valor da viagem:</strong> R$ {selectedDriver?.value}</p>
                 </DialogDescription>
                 <DialogFooter>
                   <Button onClick={handleCloseModal}>Fechar</Button>
@@ -288,12 +302,12 @@ const App: React.FC = () => {
 
           {isDriverDataVisible && selectedDriverData && (
             <div className="mt-8 p-4 border rounded-lg">
-              <h2 className="text-xl font-semibold">Dados do Motorista Selecionado</h2>
-              <p><strong>Nome:</strong> {selectedDriverData.name}</p>
-              <p><strong>Descrição:</strong> {selectedDriverData.description}</p>
-              <p><strong>Veículo:</strong> {selectedDriverData.vehicle}</p>
-              <p><strong>Avaliação:</strong> {selectedDriverData.rating}</p>
-              <p><strong>Valor da Viagem:</strong> R$ {selectedDriverData.price}</p>
+              <h2 className="text-xl font-semibold">Você chegará fácil com o motorista:</h2>
+              <p><strong>Nome:</strong> {selectedDriverData?.name}</p>
+              <p><strong>Descrição:</strong> {selectedDriverData?.description}</p>
+              <p><strong>Veículo:</strong> {selectedDriverData?.vehicle}</p>
+              <p><strong>Avaliação:</strong> {selectedDriverData?.rating}</p>
+              <p><strong>Valor da Viagem:</strong> R$ {selectedDriverData?.price}</p>
             </div>
           )}
 
@@ -360,7 +374,7 @@ const App: React.FC = () => {
                     <TableCell>{trip.destination}</TableCell>
                     <TableCell>{trip.distance}</TableCell>
                     <TableCell>{trip.duration}</TableCell>
-                    <TableCell>R$ {trip.price}</TableCell>
+                    <TableCell>R$ {trip.value}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
