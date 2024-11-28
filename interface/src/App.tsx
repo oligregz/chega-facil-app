@@ -14,9 +14,53 @@ interface Driver {
   price: number;
 }
 
+interface Trip {
+  driverName: string;
+  departure: string;
+  destination: string;
+  date: string;
+  time: string;
+  distance: string;
+  duration: string;
+  price: number;
+}
+
 const drivers: Driver[] = [
   { id: 1, name: 'Brian', description: 'Good Driver', vehicle: 'Nissan Skilen', rating: 4.5, price: 100 },
   { id: 2, name: 'John', description: 'Experienced Driver', vehicle: 'Honda Civic', rating: 4.7, price: 120 },
+];
+
+const initialTrips: Trip[] = [
+  {
+    driverName: 'Brian',
+    departure: 'Centro',
+    destination: 'Aeroporto',
+    date: '2024-11-25',
+    time: '10:30',
+    distance: '15 km',
+    duration: '20 min',
+    price: 100
+  },
+  {
+    driverName: 'John',
+    departure: 'Shopping',
+    destination: 'Praia',
+    date: '2024-11-26',
+    time: '14:00',
+    distance: '30 km',
+    duration: '40 min',
+    price: 120
+  },
+  {
+    driverName: 'Brian',
+    departure: 'Estádio',
+    destination: 'Centro',
+    date: '2024-11-27',
+    time: '18:15',
+    distance: '10 km',
+    duration: '15 min',
+    price: 80
+  }
 ];
 
 const App: React.FC = () => {
@@ -25,12 +69,14 @@ const App: React.FC = () => {
   const [selectedDriverData, setSelectedDriverData] = useState<Driver | null>(null);
   const [isTripSaved, setIsTripSaved] = useState<boolean>(false);
   const [isDriverDataVisible, setIsDriverDataVisible] = useState<boolean>(false);
+  const [isTitleVisible, setIsTitleVisible] = useState<boolean>(true);
 
   const [departure, setDeparture] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
 
   const [userChoice, setUserChoice] = useState<string | null>(null);
-  const [isTitleVisible, setIsTitleVisible] = useState<boolean>(true);
+  
+  const [trips, setTrips] = useState<Trip[]>(initialTrips); // Inicializa com as viagens mockadas
 
   const isSearchButtonDisabled = !departure || !destination;
 
@@ -52,6 +98,19 @@ const App: React.FC = () => {
 
   const handleConfirmTrip = () => {
     if (selectedDriver) {
+      // Simulando dados da viagem
+      const newTrip: Trip = {
+        driverName: selectedDriver.name,
+        departure: departure,
+        destination: destination,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        distance: '20 km', // Distância fictícia
+        duration: '30 min', // Tempo fictício
+        price: selectedDriver.price,
+      };
+
+      setTrips([...trips, newTrip]); // Adiciona a nova viagem ao histórico
       setSelectedDriverData(selectedDriver);
       setSelectedDriver(null);
       setIsTripSaved(true);
@@ -90,7 +149,6 @@ const App: React.FC = () => {
     setUserChoice("myTrips");
     setIsTitleVisible(false);
   };
-
 
   const handleBackToMenu = () => {
     setUserChoice(null);
@@ -216,8 +274,39 @@ const App: React.FC = () => {
 
       {userChoice === "myTrips" && (
         <div>
-          <h2 className="text-2xl font-bold">Buscar viagens</h2>
-          <p className="text-1xl font-bold">Veja o histórico das viagens de um determinado usuário aqui.</p>
+          <h2 className="text-2xl font-bold">Minhas viagens</h2>
+          {trips.length === 0 ? (
+            <p className="text-lg">Você ainda não fez nenhuma viagem.</p>
+          ) : (
+            <Table className="mt-4">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Motorista</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Hora</TableHead>
+                  <TableHead>Origem</TableHead>
+                  <TableHead>Destino</TableHead>
+                  <TableHead>Distância</TableHead>
+                  <TableHead>Duração</TableHead>
+                  <TableHead>Valor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {trips.map((trip, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{trip.driverName}</TableCell>
+                    <TableCell>{trip.date}</TableCell>
+                    <TableCell>{trip.time}</TableCell>
+                    <TableCell>{trip.departure}</TableCell>
+                    <TableCell>{trip.destination}</TableCell>
+                    <TableCell>{trip.distance}</TableCell>
+                    <TableCell>{trip.duration}</TableCell>
+                    <TableCell>R$ {trip.price}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
           <Button onClick={handleBackToMenu} className="mt-4" variant="outline">
             Voltar
           </Button>
