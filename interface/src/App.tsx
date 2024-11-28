@@ -29,6 +29,9 @@ const App: React.FC = () => {
   const [departure, setDeparture] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
 
+  const [userChoice, setUserChoice] = useState<string | null>(null);
+  const [isTitleVisible, setIsTitleVisible] = useState<boolean>(true);
+
   const isSearchButtonDisabled = !departure || !destination;
 
   const handleSearch = () => {
@@ -75,97 +78,149 @@ const App: React.FC = () => {
     }
   };
 
+  const showSearchFlow = () => {
+    setUserChoice("search");
+    setDeparture('');
+    setDestination('');
+    setShowTable(false);
+    setIsTitleVisible(false);
+  };
+
+  const showMyTrips = () => {
+    setUserChoice("myTrips");
+    setIsTitleVisible(false);
+  };
+
+
+  const handleBackToMenu = () => {
+    setUserChoice(null);
+    setIsTitleVisible(true);
+  };
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold">Chame um motorista</h1>
-      <form className="flex items-center gap-2 mt-1">
-        <Input 
-          name="departure" 
-          placeholder="Digite seu local de saída"
-          value={departure}
-          onChange={handleDepartureChange}
-        />
-        <Input 
-          name="destination" 
-          placeholder="Digite seu local de destino"
-          value={destination}
-          onChange={handleDestinationChange}
-        />
-        <Button
-          className="p-3"
-          type="button"
-          variant="outline"
-          onClick={handleSearch}
-          disabled={isSearchButtonDisabled}
-        >
-          <Search className='w-4 h-4 mr-2'/>
-          Buscar motoristas
-        </Button>
-      </form>
+      {isTitleVisible && (
+        <h1 className="text-2xl font-bold">Escolha o que deseja fazer</h1>
+      )}
 
-      {showTable && (
-        <div className="border rounded-lg p-4 mt-8">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Veículo</TableHead>
-                <TableHead>Avaliação</TableHead>
-                <TableHead>Valor da viagem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {drivers.map((driver) => (
-                <TableRow
-                  key={driver.id}
-                  onClick={() => handleRowClick(driver)}
-                  className="cursor-pointer"
-                >
-                  <TableCell>{driver.name}</TableCell>
-                  <TableCell>{driver.description}</TableCell>
-                  <TableCell>{driver.vehicle}</TableCell>
-                  <TableCell>{driver.rating}</TableCell>
-                  <TableCell>R$ {driver.price}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      {userChoice === null && (
+        <div className="mt-4">
+          <Button onClick={showSearchFlow} className="w-full mb-4" variant="outline">
+            Quero chegar fácil ao meu destino
+          </Button>
+          <Button onClick={showMyTrips} className="w-full" variant="outline">
+            Minhas viagens
+          </Button>
         </div>
       )}
 
-      {selectedDriver && (
-        <Dialog open={Boolean(selectedDriver)} onOpenChange={(open) => !open && handleCloseModal()}>
-          <DialogContent>
-            <DialogTitle>{selectedDriver.name}</DialogTitle>
-            <DialogDescription>
-              <p>{selectedDriver.description}</p>
-              <p><strong>Veículo:</strong> {selectedDriver.vehicle}</p>
-              <p><strong>Avaliação:</strong> {selectedDriver.rating}</p>
-              <p><strong>Valor da viagem:</strong> R$ {selectedDriver.price}</p>
-            </DialogDescription>
-            <DialogFooter>
-              <Button onClick={handleCloseModal}>Fechar</Button>
-              <Button onClick={handleConfirmTrip}>Chegar fácil</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+      {userChoice === "search" && (
+        <div>
+          <h1 className="text-2xl font-bold">Chame um motorista</h1>
+          <form className="flex items-center gap-2 mt-1">
+            <Input
+              name="departure"
+              placeholder="Digite seu local de saída"
+              value={departure}
+              onChange={handleDepartureChange}
+            />
+            <Input
+              name="destination"
+              placeholder="Digite seu local de destino"
+              value={destination}
+              onChange={handleDestinationChange}
+            />
+            <Button
+              className="p-3"
+              type="button"
+              variant="outline"
+              onClick={handleSearch}
+              disabled={isSearchButtonDisabled}
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Buscar motoristas
+            </Button>
+          </form>
 
-      {isDriverDataVisible && selectedDriverData && (
-        <div className="mt-8 p-4 border rounded-lg">
-          <h2 className="text-xl font-semibold">Dados do Motorista Selecionado</h2>
-          <p><strong>Nome:</strong> {selectedDriverData.name}</p>
-          <p><strong>Descrição:</strong> {selectedDriverData.description}</p>
-          <p><strong>Veículo:</strong> {selectedDriverData.vehicle}</p>
-          <p><strong>Avaliação:</strong> {selectedDriverData.rating}</p>
-          <p><strong>Valor da Viagem:</strong> R$ {selectedDriverData.price}</p>
+          {showTable && (
+            <div className="border rounded-lg p-4 mt-8">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead>Veículo</TableHead>
+                    <TableHead>Avaliação</TableHead>
+                    <TableHead>Valor da viagem</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {drivers.map((driver) => (
+                    <TableRow
+                      key={driver.id}
+                      onClick={() => handleRowClick(driver)}
+                      className="cursor-pointer"
+                    >
+                      <TableCell>{driver.name}</TableCell>
+                      <TableCell>{driver.description}</TableCell>
+                      <TableCell>{driver.vehicle}</TableCell>
+                      <TableCell>{driver.rating}</TableCell>
+                      <TableCell>R$ {driver.price}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {selectedDriver && (
+            <Dialog open={Boolean(selectedDriver)} onOpenChange={(open) => !open && handleCloseModal()}>
+              <DialogContent>
+                <DialogTitle>{selectedDriver.name}</DialogTitle>
+                <DialogDescription>
+                  <p>{selectedDriver.description}</p>
+                  <p><strong>Veículo:</strong> {selectedDriver.vehicle}</p>
+                  <p><strong>Avaliação:</strong> {selectedDriver.rating}</p>
+                  <p><strong>Valor da viagem:</strong> R$ {selectedDriver.price}</p>
+                </DialogDescription>
+                <DialogFooter>
+                  <Button onClick={handleCloseModal}>Fechar</Button>
+                  <Button onClick={handleConfirmTrip}>Chegar fácil</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {isDriverDataVisible && selectedDriverData && (
+            <div className="mt-8 p-4 border rounded-lg">
+              <h2 className="text-xl font-semibold">Dados do Motorista Selecionado</h2>
+              <p><strong>Nome:</strong> {selectedDriverData.name}</p>
+              <p><strong>Descrição:</strong> {selectedDriverData.description}</p>
+              <p><strong>Veículo:</strong> {selectedDriverData.vehicle}</p>
+              <p><strong>Avaliação:</strong> {selectedDriverData.rating}</p>
+              <p><strong>Valor da Viagem:</strong> R$ {selectedDriverData.price}</p>
+            </div>
+          )}
+
+          {isTripSaved && (
+            <div className="mt-4 p-4 bg-green-200 text-green-800 rounded-lg">
+              <p><strong>Viagem requisitada com sucesso!</strong></p>
+            </div>
+          )}
+
+          <Button onClick={handleBackToMenu} className="mt-4" variant="outline">
+            Voltar
+          </Button>
         </div>
       )}
 
-      {isTripSaved && (
-        <div className="mt-4 p-4 bg-green-200 text-green-800 rounded-lg">
-          <p><strong>Viagem requisitada com sucesso!</strong></p>
+      {userChoice === "myTrips" && (
+        <div>
+          <h2 className="text-2xl font-bold">Buscar viagens</h2>
+          <p className="text-1xl font-bold">Veja o histórico das viagens de um determinado usuário aqui.</p>
+          <Button onClick={handleBackToMenu} className="mt-4" variant="outline">
+            Voltar
+          </Button>
         </div>
       )}
     </div>
