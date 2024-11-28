@@ -52,7 +52,7 @@ const App: React.FC = () => {
         <Button
           className="p-2"
           type="button"
-          disabled
+          disabled={!selectedDriver}
         >
           <PlusCircle className='w-4 h-4 mr-2'/>
           Confirmar Viagem
