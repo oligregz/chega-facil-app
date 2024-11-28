@@ -3,8 +3,7 @@ import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
 import { Search, PlusCircle } from 'lucide-react'
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@radix-ui/react-dialog'
-import { DialogFooter } from './components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from './components/ui/dialog'
 
 interface Driver {
   id: number;
@@ -21,9 +20,11 @@ const drivers: Driver[] = [
 ];
 
 const App: React.FC = () => {
-  // const [count, setCount] = useState(0)
   const [showTable, setShowTable] = useState<boolean>(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [selectedDriverData, setSelectedDriverData] = useState<Driver | null>(null);
+  const [isTripSaved, setIsTripSaved] = useState<boolean>(false);
+  const [isDriverDataVisible, setIsDriverDataVisible] = useState<boolean>(false);
 
   const handleSearch = () => {
     setShowTable(true);
@@ -31,6 +32,37 @@ const App: React.FC = () => {
 
   const handleRowClick = (driver: Driver) => {
     setSelectedDriver(driver);
+  };
+
+  const handleConfirmTrip = () => {
+    if (selectedDriver) {
+      setIsTripSaved(true);
+
+ 
+      setTimeout(() => {
+        setIsTripSaved(false);
+      }, 2000);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedDriver(null);
+  };
+
+  const handleConfiormTrip = () => {
+    if (selectedDriver) {
+      setSelectedDriverData(selectedDriver);
+      setSelectedDriver(null);
+      setIsTripSaved(true);
+
+
+      setIsDriverDataVisible(true);
+
+      setTimeout(() => {
+        setIsTripSaved(false);
+        setIsDriverDataVisible(false);
+      }, 2000);
+    }
   };
 
   return (
@@ -53,6 +85,7 @@ const App: React.FC = () => {
           className="p-2"
           type="button"
           disabled={!selectedDriver}
+          onClick={handleConfirmTrip}
         >
           <PlusCircle className='w-4 h-4 mr-2'/>
           Confirmar Viagem
@@ -73,7 +106,11 @@ const App: React.FC = () => {
             </TableHeader>
             <TableBody>
               {drivers.map((driver) => (
-                <TableRow key={driver.id} onClick={() => handleRowClick(driver)} className="cursor-pointer">
+                <TableRow
+                  key={driver.id}
+                  onClick={() => handleRowClick(driver)}
+                  className="cursor-pointer"
+                >
                   <TableCell>{driver.name}</TableCell>
                   <TableCell>{driver.description}</TableCell>
                   <TableCell>{driver.vehicle}</TableCell>
@@ -87,8 +124,7 @@ const App: React.FC = () => {
       )}
 
       {selectedDriver && (
-        <Dialog 
-          open={Boolean(selectedDriver)}onOpenChange={(open) => !open && setSelectedDriver(null)}>
+        <Dialog open={Boolean(selectedDriver)} onOpenChange={(open) => !open && handleCloseModal()}>
           <DialogContent>
             <DialogTitle>{selectedDriver.name}</DialogTitle>
             <DialogDescription>
@@ -98,10 +134,28 @@ const App: React.FC = () => {
               <p><strong>Valor da viagem:</strong> R$ {selectedDriver.price}</p>
             </DialogDescription>
             <DialogFooter>
-              <Button onClick={() => setSelectedDriver(null)}>Fechar</Button>
+              <Button onClick={handleCloseModal}>Fechar</Button>
+              <Button onClick={handleConfiormTrip}>Chegar fácil</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      )}
+
+      {isDriverDataVisible && selectedDriverData && (
+        <div className="mt-8 p-4 border rounded-lg">
+          <h2 className="text-xl font-semibold">Dados do Motorista Selecionado</h2>
+          <p><strong>Nome:</strong> {selectedDriverData.name}</p>
+          <p><strong>Descrição:</strong> {selectedDriverData.description}</p>
+          <p><strong>Veículo:</strong> {selectedDriverData.vehicle}</p>
+          <p><strong>Avaliação:</strong> {selectedDriverData.rating}</p>
+          <p><strong>Valor da Viagem:</strong> R$ {selectedDriverData.price}</p>
+        </div>
+      )}
+
+      {isTripSaved && (
+        <div className="mt-4 p-4 bg-green-200 text-green-800 rounded-lg">
+          <p><strong>Viagem requisitada com sucesso!</strong></p>
+        </div>
       )}
     </div>
   );
