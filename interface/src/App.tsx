@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
-import { Search, PlusCircle } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from './components/ui/dialog'
 
 interface Driver {
@@ -26,36 +26,32 @@ const App: React.FC = () => {
   const [isTripSaved, setIsTripSaved] = useState<boolean>(false);
   const [isDriverDataVisible, setIsDriverDataVisible] = useState<boolean>(false);
 
+  const [departure, setDeparture] = useState<string>('');
+  const [destination, setDestination] = useState<string>('');
+
+  const isSearchButtonDisabled = !departure || !destination;
+
   const handleSearch = () => {
-    setShowTable(true);
+    if (!departure || !destination) {
+      alert('Preencha os campos');
+    } else {
+      setShowTable(true);
+    }
   };
 
   const handleRowClick = (driver: Driver) => {
     setSelectedDriver(driver);
   };
 
-  const handleConfirmTrip = () => {
-    if (selectedDriver) {
-      setIsTripSaved(true);
-
- 
-      setTimeout(() => {
-        setIsTripSaved(false);
-      }, 2000);
-    }
-  };
-
   const handleCloseModal = () => {
     setSelectedDriver(null);
   };
 
-  const handleConfiormTrip = () => {
+  const handleConfirmTrip = () => {
     if (selectedDriver) {
       setSelectedDriverData(selectedDriver);
       setSelectedDriver(null);
       setIsTripSaved(true);
-
-
       setIsDriverDataVisible(true);
 
       setTimeout(() => {
@@ -65,30 +61,45 @@ const App: React.FC = () => {
     }
   };
 
+  const handleDepartureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDeparture(e.target.value);
+    if (!e.target.value || !destination) {
+      setShowTable(false);
+    }
+  };
+
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDestination(e.target.value);
+    if (!departure || !e.target.value) {
+      setShowTable(false);
+    }
+  };
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold">Chame um motorista</h1>
       <form className="flex items-center gap-2 mt-1">
-        <Input name="id" placeholder="Digite seu local de saída"/>
-        <Input name="id" placeholder="Digite seu local de destino"/>
+        <Input 
+          name="departure" 
+          placeholder="Digite seu local de saída"
+          value={departure}
+          onChange={handleDepartureChange}
+        />
+        <Input 
+          name="destination" 
+          placeholder="Digite seu local de destino"
+          value={destination}
+          onChange={handleDestinationChange}
+        />
         <Button
           className="p-3"
           type="button"
           variant="outline"
           onClick={handleSearch}
+          disabled={isSearchButtonDisabled}
         >
           <Search className='w-4 h-4 mr-2'/>
           Buscar motoristas
-        </Button>
-
-        <Button
-          className="p-2"
-          type="button"
-          disabled={!selectedDriver}
-          onClick={handleConfirmTrip}
-        >
-          <PlusCircle className='w-4 h-4 mr-2'/>
-          Confirmar Viagem
         </Button>
       </form>
 
@@ -135,7 +146,7 @@ const App: React.FC = () => {
             </DialogDescription>
             <DialogFooter>
               <Button onClick={handleCloseModal}>Fechar</Button>
-              <Button onClick={handleConfiormTrip}>Chegar fácil</Button>
+              <Button onClick={handleConfirmTrip}>Chegar fácil</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
