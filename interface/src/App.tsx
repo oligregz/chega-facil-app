@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table'
 import { Search } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from './components/ui/dialog'
+import { getDefaultCustomers } from './service/getDefaultCustomers'
 
 interface Driver {
   id: number;
@@ -64,6 +65,7 @@ const initialTrips: Trip[] = [
 ];
 
 const App: React.FC = () => {
+  const [defaultCustomer, setDefaultCustomer] = useState<unknown>(null);
   const [showTable, setShowTable] = useState<boolean>(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [selectedDriverData, setSelectedDriverData] = useState<Driver | null>(null);
@@ -83,6 +85,28 @@ const App: React.FC = () => {
   const [isTripsTableVisible, setIsTripsTableVisible] = useState<boolean>(false);
 
   const isSearchButtonDisabled = !departure || !destination;
+
+  useEffect(() => {
+    async function fetchDefaultCustomers() {
+      try {
+        console.log("Página carregada com sucesso!");
+        const customers = await getDefaultCustomers();
+        setDefaultCustomer(customers[0]);
+        console.log(defaultCustomer);
+      } catch (error) {
+        console.error("Erro ao buscar os clientes:", error);
+      }
+    }
+    
+    fetchDefaultCustomers();
+
+  }, []);
+
+  useEffect(() => {
+    if (defaultCustomer) {
+      console.log("Cliente padrão atualizado:", defaultCustomer);
+    }
+  }, [defaultCustomer]);
 
   const handleSearch = () => {
     if (!departure || !destination) {
@@ -291,7 +315,7 @@ const App: React.FC = () => {
           
           <div className="flex items-center gap-2 mt-4 mb-4">
             <Input
-              placeholder="Buscar por motorista, origem, destino ou data"
+              placeholder="ID do usuário"
               value={tripSearchTerm}
               onChange={handleTripSearchChange}
             />
