@@ -27,7 +27,7 @@ interface Driver {
   value: string;
 }
 
-export interface IRenderTrip {
+export interface IRenderRide {
   driverName: string;
   date: string;
   time: string;
@@ -38,7 +38,7 @@ export interface IRenderTrip {
   value: number;
 }
 
-interface ITrip {
+interface IRide {
   customer_id?: string;
   origin: string;
   driver: {
@@ -67,10 +67,10 @@ const App: React.FC = () => {
   const [showTable, setShowTable] = useState<boolean>(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [selectedDriverData, setSelectedDriverData] = useState<Driver | null>(null);
-  const [isTripSaved, setIsTripSaved] = useState<boolean>(false);
+  const [isRideSaved, setIsRideSaved] = useState<boolean>(false);
   const [isDriverDataVisible, setIsDriverDataVisible] = useState<boolean>(false);
   const [isTitleVisible, setIsTitleVisible] = useState<boolean>(true);
-  const [tripSearchTerm, setTripSearchTerm] = useState<string>('');
+  const [rideSearchTerm, setRideSearchTerm] = useState<string>('');
   const [driverIdFilter, setDriverIdFilter] = useState<string>('');
   const [drivers, setDrivers] = useState<Driver[]>([]);
 
@@ -81,11 +81,13 @@ const App: React.FC = () => {
 
   const [userChoice, setUserChoice] = useState<string | null>(null);
   
-  const [trips, setTrips] = useState<ITrip[]>([]);
+  const [rides, setRides] = useState<IRide[]>([]);
 
-  const [isTripsTableVisible, setIsTripsTableVisible] = useState<boolean>(false);
+  const [isRidesTableVisible, setIsRidesTableVisible] = useState<boolean>(false);
 
   const [isNoDriversDialogVisible, setIsNoDriversDialogVisible] = useState<boolean>(false);
+
+  const [isWait, setIsWait] = useState<boolean>(false);
 
   const isSearchButtonDisabled = !departure || !destination;
 
@@ -100,34 +102,40 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (defaultCustomer?.id) {
-      setTripSearchTerm(defaultCustomer.id);
+      setRideSearchTerm(defaultCustomer.id);
     }
   }, [defaultCustomer]);
 
   const handleSearch = async () => {
     if (departure && destination) {
-        const driversAvailables = await listDriversDefault({
-          customer_id: defaultCustomer?.id,
-          origin: departure,
-          destination: destination
-        });
-      setDrivers(driversAvailables.options);
-      setShowTable(true);
-      setDistance(driversAvailables.distance)
-      setDuration(driversAvailables.duration)
+      setIsWait(true);
       setDrivers([]);
-    }
-
-    if (drivers.length === 0) {
-      setIsNoDriversDialogVisible(true);
-    } else {
-      setShowTable(true);
+      setShowTable(false);
+      
+      const driversAvailables = await listDriversDefault({
+        customer_id: defaultCustomer?.id,
+        origin: departure,
+        destination: destination,
+      });
+  
+      if (driversAvailables.options.length > 0) {
+        setDrivers(driversAvailables.options);
+        setShowTable(true);
+        setDistance(driversAvailables.distance);
+        setDuration(driversAvailables.duration);
+      } else {
+        setIsNoDriversDialogVisible(true);
+      }
+  
+      setIsWait(false);
     }
   };
+  
+  
 
   useEffect(() => {
     if (drivers.length > 0) {
-      console.log("Motoristas:", drivers);
+      setIsWait(false);
     }
   }, [drivers]);
 
@@ -139,17 +147,17 @@ const App: React.FC = () => {
     setSelectedDriver(null);
   };
 
-  const handleTripSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTripSearchTerm(e.target.value);
+  const handleRideSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRideSearchTerm(e.target.value);
   };
 
   const handleDriverIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDriverIdFilter(e.target.value);
   };
 
-  const handleConfirmTrip = async () => {
+  const handleConfirmRide = async () => {
     if (selectedDriver) {
-      const newTrip: ITrip = {
+      const newRide: IRide = {
         customer_id: defaultCustomer?.id,
         origin: departure,
         destination: destination,
@@ -162,15 +170,15 @@ const App: React.FC = () => {
         value: parseStrinForFloat(selectedDriver.value),
       };
       
-      const createdTrip = await createRide(newTrip);
+      const createdRide = await createRide(newRide);
 
-      setSelectedDriverData(createdTrip.success);
+      setSelectedDriverData(createdRide.success);
       setSelectedDriver(null);
-      setIsTripSaved(true);
-      setIsDriverDataVisible(createdTrip.success);
+      setIsRideSaved(true);
+      setIsDriverDataVisible(createdRide.success);
 
       setTimeout(() => {
-        setIsTripSaved(false);
+        setIsRideSaved(false);
         setIsDriverDataVisible(false);
       }, 3000);
     }
@@ -198,13 +206,13 @@ const App: React.FC = () => {
     setIsTitleVisible(false);
   };
 
-  const showMyTrips = () => {
+  const showMyRides = () => {
     if (defaultCustomer?.id) {
-      setTripSearchTerm(defaultCustomer.id);
+      setRideSearchTerm(defaultCustomer.id);
     }
-    setUserChoice("myTrips");
+    setUserChoice("myRides");
     setIsTitleVisible(false);
-    setTripSearchTerm('');
+    setRideSearchTerm('');
   };
 
   const handleBackToMenu = () => {
@@ -212,14 +220,14 @@ const App: React.FC = () => {
     setIsTitleVisible(true);
   };
 
-  const handleGetHistoryTripes = async () => {
-    setTrips([])
-    setIsTripsTableVisible(true)
-    const customerId: string = tripSearchTerm;
+  const handleGetHistoryRidees = async () => {
+    setRides([])
+    setIsRidesTableVisible(true)
+    const customerId: string = rideSearchTerm;
     const driverId: string = driverIdFilter;
 
-    const historyTripes = await getHistory(customerId, driverId);
-    setTrips(historyTripes.rides)
+    const historyRidees = await getHistory(customerId, driverId);
+    setRides(historyRidees.rides)
   }
 
   return (
@@ -233,7 +241,7 @@ const App: React.FC = () => {
           <Button onClick={showSearchFlow} className="w-full mb-4" variant="outline">
             Quero chegar fácil ao meu destino
           </Button>
-          <Button onClick={showMyTrips} className="w-full" variant="outline">
+          <Button onClick={showMyRides} className="w-full" variant="outline">
             Buscar histórico de viagens
           </Button>
         </div>
@@ -267,12 +275,24 @@ const App: React.FC = () => {
             </Button>
           </form>
 
+          {isWait && (
+            <Dialog open={isWait} onOpenChange={(open) => setIsWait(open)}>
+              <DialogContent>
+                <DialogTitle>Aguarde</DialogTitle>
+                <DialogDescription>
+                  Estamos buscando motoristas disponíveis para o seu trajeto.
+                </DialogDescription>
+              </DialogContent>
+            </Dialog>
+          )}
+
+
           {isNoDriversDialogVisible && (
             <Dialog open={isNoDriversDialogVisible} onOpenChange={(open) => setIsNoDriversDialogVisible(open)}>
               <DialogContent>
                 <DialogTitle>Aviso</DialogTitle>
                 <DialogDescription>
-                  Não foi possível encontrar motoristas que percorram a distância do seu trajeto.
+                  Não encontramos motoristas disponíveis para a sua rota.
                 </DialogDescription>
                 <DialogFooter>
                   <Button onClick={() => setIsNoDriversDialogVisible(false)}>Fechar</Button>
@@ -281,7 +301,7 @@ const App: React.FC = () => {
             </Dialog>
           )}
 
-          {isNoDriversDialogVisible && showTable  && (
+          {showTable && !isWait && drivers.length > 0 && (
             <div className="border rounded-lg p-4 mt-8">
               <Table>
                 <TableHeader>
@@ -312,6 +332,7 @@ const App: React.FC = () => {
             </div>
           )}
 
+
           {selectedDriver && (
             <Dialog open={Boolean(selectedDriver)} onOpenChange={(open) => !open && handleCloseModal()}>
               <DialogContent>
@@ -324,7 +345,7 @@ const App: React.FC = () => {
                 </DialogDescription>
                 <DialogFooter>
                   <Button onClick={handleCloseModal}>Fechar</Button>
-                  <Button onClick={handleConfirmTrip}>Chegar fácil</Button>
+                  <Button onClick={handleConfirmRide}>Chegar fácil</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -341,7 +362,7 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {isTripSaved && (
+          {isRideSaved && (
             <div className="mt-4 p-4 bg-green-200 text-green-800 rounded-lg">
               <p><strong>Viagem requisitada com sucesso!</strong></p>
             </div>
@@ -353,15 +374,15 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {userChoice === "myTrips" && (
+      {userChoice === "myRides" && (
         <div>
           <h2 className="text-2xl font-bold">Minhas viagens</h2>
           
           <div className="flex items-center gap-2 mt-4 mb-4">
             <Input
               placeholder="ID do usuário"
-              value={tripSearchTerm}
-              onChange={handleTripSearchChange}
+              value={rideSearchTerm}
+              onChange={handleRideSearchChange}
             />
             <Input
               placeholder="ID do motorista"
@@ -372,15 +393,15 @@ const App: React.FC = () => {
               className="p-3"
               type="button"
               variant="outline"
-              disabled={!tripSearchTerm.trim()}
-              onClick={handleGetHistoryTripes}
+              disabled={!rideSearchTerm.trim()}
+              onClick={handleGetHistoryRidees}
             >
               <Search className="w-4 h-4 mr-2" />
               Buscar
             </Button>
           </div>
 
-          {isTripsTableVisible && (
+          {isRidesTableVisible && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -394,15 +415,15 @@ const App: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trips.map((trip, index) => (
+                {rides.map((ride, index) => (
                   <TableRow key={index}>
-                    <TableCell>{trip.driver.name}</TableCell>
-                    <TableCell>{trip.date}</TableCell>
-                    <TableCell>{trip.origin}</TableCell>
-                    <TableCell>{trip.destination}</TableCell>
-                    <TableCell>{trip.distance}</TableCell>
-                    <TableCell>{trip.duration}</TableCell>
-                    <TableCell>R$ {trip.value}</TableCell>
+                    <TableCell>{ride.driver.name}</TableCell>
+                    <TableCell>{ride.date}</TableCell>
+                    <TableCell>{ride.origin}</TableCell>
+                    <TableCell>{ride.destination}</TableCell>
+                    <TableCell>{ride.distance}</TableCell>
+                    <TableCell>{ride.duration}</TableCell>
+                    <TableCell>R$ {ride.value}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
