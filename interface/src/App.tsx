@@ -8,6 +8,7 @@ import { getDefaultCustomers } from './service/getDefaultCustomers'
 import { listDriversDefault } from './service/listDriversVailables'
 import { createRide } from './service/createRide'
 import { parseStrinForFloat } from './utils/parseStrinForFloat'
+import { getHistory } from './service/getHistory'
 
 export interface IReview {
   rating: number;
@@ -19,6 +20,7 @@ interface Driver {
   rating: ReactNode
   id: string;
   name: string;
+  options: object;
   description: string;
   vehicle: string;
   review: IReview;
@@ -35,7 +37,7 @@ export interface IRenderTrip {
   value: number;
 }
 
-interface ISaveTrip {
+interface ITrip {
   customer_id?: string;
   origin: string;
   driver: {
@@ -43,6 +45,7 @@ interface ISaveTrip {
     name: string;
   }
   destination: string;
+  date?: string;
   distance: number;
   duration: string;
   value: number;
@@ -59,7 +62,7 @@ export interface ICustomerDefault {
 }
 
 const App: React.FC = () => {
-  const [defaultCustomer, setDefaultCustomer] = useState<ICustomerDefault>();
+  const [defaultCustomer, setDefaultCustomer] = useState<ICustomerDefault | undefined>();
   const [showTable, setShowTable] = useState<boolean>(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [selectedDriverData, setSelectedDriverData] = useState<Driver | null>(null);
@@ -77,7 +80,7 @@ const App: React.FC = () => {
 
   const [userChoice, setUserChoice] = useState<string | null>(null);
   
-  const [trips, setTrips] = useState<IRenderTrip[]>([]);
+  const [trips, setTrips] = useState<ITrip[]>([]);
 
   const [isTripsTableVisible, setIsTripsTableVisible] = useState<boolean>(false);
 
@@ -85,43 +88,37 @@ const App: React.FC = () => {
 
   useEffect(() => {
     async function fetchDefaultCustomers() {
-      try {
-        const customers = await getDefaultCustomers();
-        setDefaultCustomer(customers[0]);
-      } catch (error) {
-        console.error("Erro ao buscar os clientes:", error);
-      }
+      const customers = await getDefaultCustomers();
+      setDefaultCustomer(customers[0]);
     }
     
     fetchDefaultCustomers();
-
   }, []);
 
   useEffect(() => {
+    if (defaultCustomer?.id) {
+      setTripSearchTerm(defaultCustomer.id);
+    }
   }, [defaultCustomer]);
 
   const handleSearch = async () => {
     if (departure && destination) {
-      try {
         const driversAvailables = await listDriversDefault({
           customer_id: defaultCustomer?.id,
           origin: departure,
           destination: destination
         });
-        setDrivers(driversAvailables.options);
-        setShowTable(true);
-        setDistance(driversAvailables.distance)
-        setDuration(driversAvailables.duration)
-      } catch (error) {
-        console.error("Erro ao buscar motoristas:", error);
-        setDrivers([]);
-      }
+      setDrivers(driversAvailables.options);
+      setShowTable(true);
+      setDistance(driversAvailables.distance)
+      setDuration(driversAvailables.duration)
+      setDrivers([]);
     }
   };
 
   useEffect(() => {
-    if (drivers.options) {
-      console.log("Motoristas:", drivers.options);
+    if (drivers.length > 0) {
+      console.log("Motoristas:", drivers);
     }
   }, [drivers]);
 
@@ -143,7 +140,7 @@ const App: React.FC = () => {
 
   const handleConfirmTrip = async () => {
     if (selectedDriver) {
-      const newTrip: ISaveTrip = {
+      const newTrip: ITrip = {
         customer_id: defaultCustomer?.id,
         origin: departure,
         destination: destination,
@@ -157,10 +154,7 @@ const App: React.FC = () => {
       };
       
       const createdTrip = await createRide(newTrip);
-      console.log('createdTrip', createdTrip)
 
-      // const updatedTrips = [...trips, newTrip];
-      // setTrips(updatedTrips);
       setSelectedDriverData(createdTrip.success);
       setSelectedDriver(null);
       setIsTripSaved(true);
@@ -169,7 +163,7 @@ const App: React.FC = () => {
       setTimeout(() => {
         setIsTripSaved(false);
         setIsDriverDataVisible(false);
-      }, 2000);
+      }, 3000);
     }
   };
 
@@ -196,6 +190,9 @@ const App: React.FC = () => {
   };
 
   const showMyTrips = () => {
+    if (defaultCustomer?.id) {
+      setTripSearchTerm(defaultCustomer.id);
+    }
     setUserChoice("myTrips");
     setIsTitleVisible(false);
     setTripSearchTerm('');
@@ -205,6 +202,16 @@ const App: React.FC = () => {
     setUserChoice(null);
     setIsTitleVisible(true);
   };
+
+  const handleGetHistoryTripes = async () => {
+    setTrips([])
+    setIsTripsTableVisible(true)
+    const customerId: string = tripSearchTerm;
+    const driverId: string = driverIdFilter;
+
+    const historyTripes = await getHistory(customerId, driverId);
+    setTrips(historyTripes.rides)
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -218,7 +225,7 @@ const App: React.FC = () => {
             Quero chegar fácil ao meu destino
           </Button>
           <Button onClick={showMyTrips} className="w-full" variant="outline">
-            Minhas viagens
+            Buscar histórico de viagens
           </Button>
         </div>
       )}
@@ -343,7 +350,7 @@ const App: React.FC = () => {
               type="button"
               variant="outline"
               disabled={!tripSearchTerm.trim()}
-              onClick={() => setIsTripsTableVisible(true)}
+              onClick={handleGetHistoryTripes}
             >
               <Search className="w-4 h-4 mr-2" />
               Buscar
@@ -355,8 +362,7 @@ const App: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Motorista</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Hora</TableHead>
+                  <TableHead>Data/Hora</TableHead>
                   <TableHead>Origem</TableHead>
                   <TableHead>Destino</TableHead>
                   <TableHead>Distância</TableHead>
@@ -367,10 +373,9 @@ const App: React.FC = () => {
               <TableBody>
                 {trips.map((trip, index) => (
                   <TableRow key={index}>
-                    <TableCell>{trip.driverName}</TableCell>
+                    <TableCell>{trip.driver.name}</TableCell>
                     <TableCell>{trip.date}</TableCell>
-                    <TableCell>{trip.time}</TableCell>
-                    <TableCell>{trip.departure}</TableCell>
+                    <TableCell>{trip.origin}</TableCell>
                     <TableCell>{trip.destination}</TableCell>
                     <TableCell>{trip.distance}</TableCell>
                     <TableCell>{trip.duration}</TableCell>
