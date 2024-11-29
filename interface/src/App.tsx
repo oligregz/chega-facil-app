@@ -26,6 +26,7 @@ interface Driver {
   review: IReview;
   value: string;
 }
+
 export interface IRenderTrip {
   driverName: string;
   date: string;
@@ -84,6 +85,8 @@ const App: React.FC = () => {
 
   const [isTripsTableVisible, setIsTripsTableVisible] = useState<boolean>(false);
 
+  const [isNoDriversDialogVisible, setIsNoDriversDialogVisible] = useState<boolean>(false);
+
   const isSearchButtonDisabled = !departure || !destination;
 
   useEffect(() => {
@@ -113,6 +116,12 @@ const App: React.FC = () => {
       setDistance(driversAvailables.distance)
       setDuration(driversAvailables.duration)
       setDrivers([]);
+    }
+
+    if (drivers.length === 0) {
+      setIsNoDriversDialogVisible(true);
+    } else {
+      setShowTable(true);
     }
   };
 
@@ -258,7 +267,21 @@ const App: React.FC = () => {
             </Button>
           </form>
 
-          {showTable  && (
+          {isNoDriversDialogVisible && (
+            <Dialog open={isNoDriversDialogVisible} onOpenChange={(open) => setIsNoDriversDialogVisible(open)}>
+              <DialogContent>
+                <DialogTitle>Aviso</DialogTitle>
+                <DialogDescription>
+                  Não foi possível encontrar motoristas que percorram a distância do seu trajeto.
+                </DialogDescription>
+                <DialogFooter>
+                  <Button onClick={() => setIsNoDriversDialogVisible(false)}>Fechar</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {isNoDriversDialogVisible && showTable  && (
             <div className="border rounded-lg p-4 mt-8">
               <Table>
                 <TableHeader>
