@@ -8,6 +8,12 @@ import { AppErrorFilter } from './errors/AppErrorFilter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,PATCH,POST',
+    allowedHeaders: 'Content-Type, Authorization',
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

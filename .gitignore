@@ -24,6 +24,7 @@ interface/*.ntvs*
 interface/*.njsproj
 interface/*.sln
 interface/*.sw?
+interface/.vite
 
 
 # Api
