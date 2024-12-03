@@ -5,10 +5,12 @@ export async function getHistory(customerId: string | undefined, driverId: strin
     const response = await axios.get(`http://localhost:8080/ride/${customerId}?driver_id=${driverId}`);
     return response.data;
   } catch (error) {
+    console.error('Erro desconhecido:', error);
     if (axios.isAxiosError(error)) {
-      console.error('Erro na requisição:', error.response?.data || error.message);
+      return error.response?.data
     } else {
       console.error('Erro desconhecido:', error);
+      return error
     }
   }
 }

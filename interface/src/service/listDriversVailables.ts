@@ -7,10 +7,12 @@ export async function listDriversDefault(body: unknown) {
     console.log(response)
     return response.data;
   } catch (error) {
+    console.error('Erro desconhecido:', error);
     if (axios.isAxiosError(error)) {
-      console.error('Erro na requisição:', error.response?.data || error.message);
+      return error.response?.data
     } else {
       console.error('Erro desconhecido:', error);
+      return error
     }
   }
 }
