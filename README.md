@@ -33,7 +33,7 @@ This application aims to simulate the travel request flow using primarily extern
 
 In this project, we provide a UML data model to represent the `Customer`, `Driver` and `Ride` entities. Below is the textual representation of the classes and their relationships:
 
-> *__Ride Customer__*
+> *__Customer__*
 
 {
   + id : String [PK]
@@ -50,7 +50,7 @@ In this project, we provide a UML data model to represent the `Customer`, `Drive
 }<br />
 
 
-> *__Ride Driver__*
+> *__Driver__*
 
 + id : String [PK]
 + name : String
@@ -72,7 +72,7 @@ In this project, we provide a UML data model to represent the `Customer`, `Drive
 <br />
 
 
-> *__Ride Class__*
+> *__Ride__*
 
 + id : String [PK]
 + customerId : String [FK]
@@ -91,7 +91,9 @@ In this project, we provide a UML data model to represent the `Customer`, `Drive
 
 <br />
 
-Enum "RideStatus" {
+Enum `RideStatus:`
+<br />
+{
   + REQUESTED
   + CONFIRMED
   + IN_PROGRESS
@@ -100,6 +102,7 @@ Enum "RideStatus" {
 
 }
 
+<br />
 __Relationships:__
 
 `Customer` "1" -- "0..*" Ride : has<br />
@@ -118,25 +121,25 @@ __>__ Click on the link https://youtu.be/... to see the application flow
 ### 1º Step
 Clone the repository:
   ```bash
-  git git@github.com:oligregz/chega-facil-app.git
+  git clone git@github.com:oligregz/chega-facil-app.git
   ```
 
 
 ### 2º Step
 Access the project directory:
-  ```bash
-  cd chega-facil-app
-  ```
+```bash
+cd chega-facil-app
+```
 
 ### 3º Step
 Install the project's dependencies in the application's parent directory with the commands:
-  ```bash
-  npm install
-  ```
+```bash
+npm install
+```
 then run:
-  ```bash
-  npm run i-dev-app
-  ```
+```bash
+npm run i-dev-app
+```
 
 ### 4º Step
 Create a .env file with the key GOOGLE_API_KEY and add your google maps api key. Use the .env.example located at the root of the project as a reference.
@@ -144,14 +147,14 @@ Create a .env file with the key GOOGLE_API_KEY and add your google maps api key.
 
 ### 5º Step
 Make sure you have Docker and Docker-compose installed on your machine and run:
-  ```bash
-  docker-compose up
-  ```
+```bash
+docker-compose up
+```
 
 If you want to leave your terminal free, use the command:
-  ```bash
-  docker-compose up --build -d 
-  ```
+```bash
+docker-compose up --build -d 
+```
 <br />
 
 
@@ -170,12 +173,12 @@ __[DEVELOPMENT]__ <br />
 > __💈 Hello__
 <br />
 
-__>__ __[GET]__ http://localhost:8080/ <br />
+__>__ __[GET]__ http://localhost:8080/ <br /><br />
 
 > __💈 List Customers__
 <br />
 
-__>__ __[GET]__ http://localhost:8080/customers <br />
+__>__ __[GET]__ http://localhost:8080/customers <br /><br />
 
 > __💈 Create Customer__
 <br />
@@ -208,11 +211,10 @@ __>__ __[POST]__ http://localhost:8080/ride/estimate <br />
   "destination": "Philadelphia, USA"
 }
 ```
-<br />
+<br /><br />
 
 > __💈 Confirm ride__
 <br />
-
 
 __>__ __[PATCH]__ http://localhost:8080/ride/confirm <br />
 
@@ -232,7 +234,7 @@ __>__ __[PATCH]__ http://localhost:8080/ride/confirm <br />
 }
 
 ```
-<br />
+<br /><br />
 
 > __💈 List rides history by customer and/or driver__
 <br />
