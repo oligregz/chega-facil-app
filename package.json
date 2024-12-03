@@ -8,6 +8,7 @@
     "s-dev-api": "concurrently \"cd api && nest start --watch\"",
     "s-dev-container-api": "concurrently \"cd api && npm run docker:start\"",
     "prisma-studio": "concurrently \"cd api && npx prisma studio\"",
+    "i-dev-app": "concurrently \"cd api && npm install\" \"cd interface && npm install\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
