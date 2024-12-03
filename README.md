@@ -142,7 +142,7 @@ npm run i-dev-app
 ```
 
 ### 4º Step
-Create a .env file with the key GOOGLE_API_KEY and add your google maps api key. Use the .env.example located at the root of the project as a reference.
+Create a `.env` file with the key __GOOGLE_API_KEY__ and add your google maps api key. Use the .env.example located at the root of the project as a reference.
 <br />
 
 ### 5º Step
@@ -163,7 +163,8 @@ docker-compose up --build -d
 > __Use app on port 80__
 
 __>__ http://localhost:80/
-<br /><br />
+
+<br />
 
 
 ## 📖 Api Routes <br />
@@ -239,5 +240,6 @@ __>__ __[PATCH]__ http://localhost:8080/ride/confirm <br />
 > __💈 List rides history by customer and/or driver__
 <br />
 
-__>__ __[GET]__ http://localhost:8080/ride/<customer_id>?driver_id=<driver_id> <br />
+__>__ __[GET]__ http://localhost:8080/ride/<customer_id>?driver_id=<driver_id>
+
 <br />
