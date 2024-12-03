@@ -9,6 +9,7 @@ import { listDriversDefault } from './service/listDriversVailables'
 import { createRide } from './service/createRide'
 import { parseStrinForFloat } from './utils/parseStrinForFloat'
 import { getHistory } from './service/getHistory'
+import { formatDateISO8601ForCustomString } from './utils/formatDateISO8601ForCustomString'
 
 export interface IReview {
   rating: number;
@@ -16,8 +17,8 @@ export interface IReview {
 }
 
 interface Driver {
-  price: ReactNode
-  rating: ReactNode
+  price: string
+  rating: number
   id: string;
   name: string;
   options: object;
@@ -63,31 +64,31 @@ export interface ICustomerDefault {
 }
 
 const App: React.FC = () => {
-  const [defaultCustomer, setDefaultCustomer] = useState<ICustomerDefault | undefined>();
+
+  // render states
   const [showTable, setShowTable] = useState<boolean>(false);
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
-  const [selectedDriverData, setSelectedDriverData] = useState<Driver | null>(null);
-  const [isRideSaved, setIsRideSaved] = useState<boolean>(false);
-  const [isDriverDataVisible, setIsDriverDataVisible] = useState<boolean>(false);
   const [isTitleVisible, setIsTitleVisible] = useState<boolean>(true);
+  const [isRidesTableVisible, setIsRidesTableVisible] = useState<boolean>(false);
+  const [isNoDriversDialogVisible, setIsNoDriversDialogVisible] = useState<boolean>(false);
+  const [isNoRidesDialogVisible, setIsNoRidesDialogVisible] = useState<boolean>(false);
+  const [isInvalidDataDialogVisible, setIsInvalidDataDialogVisible] = useState<boolean>(false);
+  const [isWait, setIsWait] = useState<boolean>(false);
+  const [errorDialogVisible, setErrorDialogVisible] = useState<boolean>(false);
+
+  // information states
+  const [defaultCustomer, setDefaultCustomer] = useState<ICustomerDefault | undefined>();
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [isRideSaved, setIsRideSaved] = useState<boolean>(false);
   const [rideSearchTerm, setRideSearchTerm] = useState<string>('');
   const [driverIdFilter, setDriverIdFilter] = useState<string>('');
   const [drivers, setDrivers] = useState<Driver[]>([]);
-
   const [departure, setDeparture] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
   const [duration, setDuration] = useState<string>('');
   const [distance, setDistance] = useState<number>(0);
-
   const [userChoice, setUserChoice] = useState<string | null>(null);
-  
   const [rides, setRides] = useState<IRide[]>([]);
-
-  const [isRidesTableVisible, setIsRidesTableVisible] = useState<boolean>(false);
-
-  const [isNoDriversDialogVisible, setIsNoDriversDialogVisible] = useState<boolean>(false);
-
-  const [isWait, setIsWait] = useState<boolean>(false);
+  const [errorDialogMessage, setErrorDialogMessage] = useState<string>('');
 
   const isSearchButtonDisabled = !departure || !destination;
 
@@ -130,8 +131,6 @@ const App: React.FC = () => {
       setIsWait(false);
     }
   };
-  
-  
 
   useEffect(() => {
     if (drivers.length > 0) {
@@ -171,15 +170,13 @@ const App: React.FC = () => {
       };
       
       const createdRide = await createRide(newRide);
-
-      setSelectedDriverData(createdRide.success);
       setSelectedDriver(null);
       setIsRideSaved(true);
-      setIsDriverDataVisible(createdRide.success);
 
       setTimeout(() => {
-        setIsRideSaved(false);
-        setIsDriverDataVisible(false);
+        if (createdRide) {
+          setIsRideSaved(false);
+        }
       }, 3000);
     }
   };
@@ -212,23 +209,42 @@ const App: React.FC = () => {
     }
     setUserChoice("myRides");
     setIsTitleVisible(false);
-    setRideSearchTerm('');
+    // setRideSearchTerm('');
   };
 
   const handleBackToMenu = () => {
     setUserChoice(null);
     setIsTitleVisible(true);
-  };
-
-  const handleGetHistoryRidees = async () => {
     setRides([])
-    setIsRidesTableVisible(true)
-    const customerId: string = rideSearchTerm;
-    const driverId: string = driverIdFilter;
+    setDriverIdFilter('')
+  };
+  
+  const handleGetHistoryRides = async () => {
+    setRides([]);
+    setIsRidesTableVisible(true);
+  
+    try {
+      const customerId: string = rideSearchTerm;
+      const driverId: string = driverIdFilter;
+      const historyRides = await getHistory(customerId, driverId);
+  
+      if (historyRides.error_description && historyRides.error_code === "INVALID_DATA") {
+        setIsRidesTableVisible(false)
+        setErrorDialogMessage(historyRides.error_description);
+        setIsInvalidDataDialogVisible(true);
+      } else if (Array.isArray(historyRides.rides) && historyRides.rides.length === 0) {
+        setIsRidesTableVisible(false)
+        setIsNoRidesDialogVisible(true);
+      } else {
+        setRides(historyRides.rides);
+      }
+    } catch (error) {
+      console.log('error', error);
 
-    const historyRidees = await getHistory(customerId, driverId);
-    setRides(historyRidees.rides)
-  }
+      setErrorDialogVisible(true);
+      setIsRidesTableVisible(false)
+    }
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -332,7 +348,6 @@ const App: React.FC = () => {
             </div>
           )}
 
-
           {selectedDriver && (
             <Dialog open={Boolean(selectedDriver)} onOpenChange={(open) => !open && handleCloseModal()}>
               <DialogContent>
@@ -351,17 +366,6 @@ const App: React.FC = () => {
             </Dialog>
           )}
 
-          {isDriverDataVisible && selectedDriverData && (
-            <div className="mt-8 p-4 border rounded-lg">
-              <h2 className="text-xl font-semibold">Você chegará fácil com o motorista:</h2>
-              <p><strong>Nome:</strong> {selectedDriverData?.name}</p>
-              <p><strong>Descrição:</strong> {selectedDriverData?.description}</p>
-              <p><strong>Veículo:</strong> {selectedDriverData?.vehicle}</p>
-              <p><strong>Avaliação:</strong> {selectedDriverData?.rating}</p>
-              <p><strong>Valor da Viagem:</strong> R$ {selectedDriverData?.price}</p>
-            </div>
-          )}
-
           {isRideSaved && (
             <div className="mt-4 p-4 bg-green-200 text-green-800 rounded-lg">
               <p><strong>Viagem requisitada com sucesso!</strong></p>
@@ -374,67 +378,112 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {userChoice === "myRides" && (
-        <div>
-          <h2 className="text-2xl font-bold">Minhas viagens</h2>
-          
-          <div className="flex items-center gap-2 mt-4 mb-4">
-            <Input
-              placeholder="ID do usuário"
-              value={rideSearchTerm}
-              onChange={handleRideSearchChange}
-            />
-            <Input
-              placeholder="ID do motorista"
-              value={driverIdFilter}
-              onChange={handleDriverIdChange}
-            />
-            <Button
-              className="p-3"
-              type="button"
-              variant="outline"
-              disabled={!rideSearchTerm.trim()}
-              onClick={handleGetHistoryRidees}
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Buscar
-            </Button>
-          </div>
+    {userChoice === "myRides" && (
+      <div>
+        <h2 className="text-2xl font-bold">Minhas viagens</h2>
 
-          {isRidesTableVisible && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Motorista</TableHead>
-                  <TableHead>Data/Hora</TableHead>
-                  <TableHead>Origem</TableHead>
-                  <TableHead>Destino</TableHead>
-                  <TableHead>Distância</TableHead>
-                  <TableHead>Duração</TableHead>
-                  <TableHead>Valor</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rides.map((ride, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{ride.driver.name}</TableCell>
-                    <TableCell>{ride.date}</TableCell>
-                    <TableCell>{ride.origin}</TableCell>
-                    <TableCell>{ride.destination}</TableCell>
-                    <TableCell>{ride.distance}</TableCell>
-                    <TableCell>{ride.duration}</TableCell>
-                    <TableCell>R$ {ride.value}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-
-          <Button onClick={handleBackToMenu} className="mt-4" variant="outline">
-            Voltar
+        <div className="flex items-center gap-2 mt-4 mb-4">
+          <Input
+            placeholder="ID do usuário"
+            value={rideSearchTerm}
+            onChange={handleRideSearchChange}
+          />
+          <Input
+            placeholder="ID do motorista"
+            value={driverIdFilter}
+            onChange={handleDriverIdChange}
+          />
+          <Button
+            className="p-3"
+            type="button"
+            variant="outline"
+            disabled={!rideSearchTerm.trim()}
+            onClick={handleGetHistoryRides}
+          >
+            <Search className="w-4 h-4 mr-2" />
+            Buscar
           </Button>
         </div>
-      )}
+
+        {isNoRidesDialogVisible && (
+          <Dialog open={isNoRidesDialogVisible} onOpenChange={(open) => setIsNoRidesDialogVisible(open)}>
+            <DialogContent>
+              <DialogTitle>Aviso</DialogTitle>
+              <DialogDescription>
+                Não encontramos viagens correspondentes para os critérios fornecidos.
+              </DialogDescription>
+              <DialogFooter>
+                <Button onClick={() => setIsNoRidesDialogVisible(false)}>Fechar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {errorDialogVisible && (
+          <Dialog open={errorDialogVisible} onOpenChange={(open) => setErrorDialogVisible(open)}>
+            <DialogContent>
+              <DialogTitle>Erro</DialogTitle>
+              <DialogDescription>
+                {errorDialogMessage}
+              </DialogDescription>
+              <DialogFooter>
+                <Button onClick={() => setErrorDialogVisible(false)}>Fechar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {isInvalidDataDialogVisible && (
+          <Dialog open={isInvalidDataDialogVisible} onOpenChange={(open) => setIsInvalidDataDialogVisible(open)}>
+            <DialogContent>
+              <DialogTitle>Erro</DialogTitle>
+              <DialogDescription>
+                Os dados fornecidos no corpo da requisição são inválidos. Por favor, revise as informações e tente novamente.
+              </DialogDescription>
+              <DialogFooter>
+                <Button onClick={() => setIsInvalidDataDialogVisible(false)}
+              >Fechar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {isRidesTableVisible && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Motorista</TableHead>
+                <TableHead>Data/Hora</TableHead>
+                <TableHead>Origem</TableHead>
+                <TableHead>Destino</TableHead>
+                <TableHead>Distância</TableHead>
+                <TableHead>Duração</TableHead>
+                <TableHead>Valor</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rides.map((ride, index) => (
+                <TableRow key={index}>
+                  <TableCell>{ride.driver.name}</TableCell>
+                  <TableCell>{formatDateISO8601ForCustomString(ride?.date)}</TableCell>
+                  <TableCell>{ride.origin}</TableCell>
+                  <TableCell>{ride.destination}</TableCell>
+                  <TableCell>{ride.distance}</TableCell>
+                  <TableCell>{ride.duration}</TableCell>
+                  <TableCell>R$ {ride.value}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+
+        <Button onClick={handleBackToMenu} className="mt-4" variant="outline">
+          Voltar
+        </Button>
+      </div>
+    )}
+
+
     </div>
   );
 }
