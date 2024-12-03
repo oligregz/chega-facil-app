@@ -121,7 +121,7 @@ __>__ Click on the link https://youtu.be/... to see the application flow
 ### 1º Step
 Clone the repository:
   ```bash
-  git clone git@github.com:oligregz/chega-facil-app.git
+  git clone https://github.com/oligregz/chega-facil-app.git
   ```
 
 
