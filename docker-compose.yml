@@ -12,7 +12,7 @@ services:
     volumes:
       - ./interface:/app/interface
       - ./.env:/app/interface/.env
-      - /app/node_modules
+      - interface_node_modules:/app/interface/node_modules
     depends_on:
       api:
         condition: service_started
@@ -63,3 +63,4 @@ services:
 volumes:
   postgres_data:
     name: chega-facil-postgres-data
+  interface_node_modules:
