@@ -172,6 +172,7 @@ const App: React.FC = () => {
       const createdRide = await createRide(newRide);
       setSelectedDriver(null);
       setIsRideSaved(true);
+      setShowTable(false);
 
       setTimeout(() => {
         if (createdRide) {
