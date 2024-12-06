@@ -24,41 +24,92 @@ export async function main() {
 
     // Create customers
     for (const customerData of data.customers) {
-      const customer = await prisma.customer.create({
-        data: {
-          name: customerData.name,
-          email: customerData.email,
-          phone: customerData.phone,
-          isActive: customerData.isActive,
+      // Verify if exists
+      const existingCustomer = await prisma.customer.findFirst({
+        where: {
+          AND: [
+            { name: customerData.name },
+            { email: customerData.email },
+            { phone: customerData.phone },
+          ],
         },
       });
-      console.log(`Customer ${customer.name} created`);
+
+      if (existingCustomer) {
+        // Update if exists
+        const customer = await prisma.customer.update({
+          where: { id: existingCustomer.id },
+          data: {
+            isActive: customerData.isActive,
+          },
+        });
+        console.log(`Customer ${customer.name} updated`);
+      } else {
+        // Create if not exists
+        const customer = await prisma.customer.create({
+          data: {
+            name: customerData.name,
+            email: customerData.email,
+            phone: customerData.phone,
+            isActive: customerData.isActive,
+          },
+        });
+        console.log(`Customer ${customer.name} created`);
+      }
       accCustomers++;
     }
 
     // Create drivers
     for (const driverData of data.drivers) {
-      const driver = await prisma.driver.create({
-        data: {
-          name: driverData.name,
-          email: driverData.email,
-          phone: driverData.phone,
-          vehicle: driverData.vehicle,
-          description: driverData.description,
-          lastComment: driverData.lastComment,
-          rating: driverData.rating,
-          rate: driverData.rate,
-          minimumDistance: driverData.minimumDistance,
-          isActive: driverData.isActive,
+      // Verify if exists
+      const existingDriver = await prisma.driver.findFirst({
+        where: {
+          AND: [
+            { name: driverData.name },
+            { email: driverData.email },
+            { phone: driverData.phone },
+          ],
         },
       });
 
-      console.log(`Driver ${driver.name} created`);
+      if (existingDriver) {
+        // Update if exists
+        const driver = await prisma.driver.update({
+          where: { id: existingDriver.id },
+          data: {
+            vehicle: driverData.vehicle,
+            description: driverData.description,
+            lastComment: driverData.lastComment,
+            rating: driverData.rating,
+            rate: driverData.rate,
+            minimumDistance: driverData.minimumDistance,
+            isActive: driverData.isActive,
+          },
+        });
+        console.log(`Driver ${driver.name} updated`);
+      } else {
+        // Create if not exists
+        const driver = await prisma.driver.create({
+          data: {
+            name: driverData.name,
+            email: driverData.email,
+            phone: driverData.phone,
+            vehicle: driverData.vehicle,
+            description: driverData.description,
+            lastComment: driverData.lastComment,
+            rating: driverData.rating,
+            rate: driverData.rate,
+            minimumDistance: driverData.minimumDistance,
+            isActive: driverData.isActive,
+          },
+        });
+        console.log(`Driver ${driver.name} created`);
+      }
       accDrivers++;
     }
 
     console.log(
-      `${accCustomers} Customers and ${accDrivers} Drivers added in database`,
+      `${accCustomers} Customers and ${accDrivers} Drivers processed in database`,
     );
   }
 }
