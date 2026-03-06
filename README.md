@@ -112,10 +112,6 @@ __Relationships:__
 <br />
 
 
-## 🌐 Flow application <br />
-__>__ Click on the link https://youtu.be/... to see the application flow
-<br />
-
 ## Guidelines<br />
 
 ### 1º Step
